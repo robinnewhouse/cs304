@@ -179,11 +179,14 @@ public class ClerkInfo {
 		//Set up labels with fields
 		labelReturn.setLabelFor(fieldReturn);
 		
+		//Return Button
+		button = new JButton("Return");
+		
 		//Label Panel
 		labelPanel = new JPanel(new GridLayout(1,1,0,16));
 		labelPanel.add(labelReturn);
 		
-		//Label Panel
+		//Field Panel
 		fieldPanel = new JPanel(new GridLayout(1,1,0,14));
 		fieldPanel.add(fieldReturn);
 		
@@ -202,6 +205,12 @@ public class ClerkInfo {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.insets = new Insets(0,0,20,0);
 		finalPanel.add(txt, c);
+		c.fill = 0;
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		c.insets = new Insets(20,0,0,0);
+		finalPanel.add(button, c);
 		
 		return finalPanel;		
 	}

@@ -14,6 +14,7 @@ public class Info extends JPanel {
 	protected JPanel panel;
 	BorrowerInfo borrowerInfo;
 	ClerkInfo clerkInfo;
+	LibrarianInfo librarianInfo;
 	
 	public Info (String string) {
 		setPanelSpecs();
@@ -90,16 +91,20 @@ public class Info extends JPanel {
 		this.add(borrowerInfo.finePanel(), BorderLayout.CENTER);
 	}
 	
-	private void popularReportPanel() {
-		panel = new JPanel();
+	private void addBookPanel() {
+		librarianInfo = new LibrarianInfo();
+		this.add(librarianInfo.addBookPanel(), BorderLayout.CENTER);
 	}
+	
 
 	private void bookReportPanel() {
-		panel = new JPanel();
+		librarianInfo = new LibrarianInfo();
+		this.add(librarianInfo.bookReportPanel(), BorderLayout.CENTER);
 	}
-
-	private void addBookPanel() {
-		panel = new JPanel();
+	
+	private void popularReportPanel() {
+		librarianInfo = new LibrarianInfo();
+		this.add(librarianInfo.popularReportPanel(), BorderLayout.CENTER);
 	}
 	
 	private void addBorrowerPanel() {
@@ -122,12 +127,7 @@ public class Info extends JPanel {
 		this.add(clerkInfo.overduePanel(), BorderLayout.CENTER);
 	}
 
-	
-
 	protected void setPanelSpecs() {
-		this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-		this.setMaximumSize(new Dimension(300, getHeight()));
-		this.setMinimumSize(new Dimension(300, getHeight()));
 		this.setPreferredSize(new Dimension(300, getHeight()));		
 		this.setBorder(BorderFactory.createLineBorder(Color.black, 2));
 		this.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));

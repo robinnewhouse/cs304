@@ -47,9 +47,9 @@ public class MainWindow extends JFrame implements SessionListener {
 		resultsPanel.setBackground(Color.white);
 		
 		currentEditPanel = new JPanel();
-		currentEditPanel.setMaximumSize(new Dimension(250, getHeight()));
-		currentEditPanel.setMinimumSize(new Dimension(250, getHeight()));
-		currentEditPanel.setPreferredSize(new Dimension(250, getHeight()));		
+		currentEditPanel.setMaximumSize(new Dimension(300, getHeight()));
+		currentEditPanel.setMinimumSize(new Dimension(300, getHeight()));
+		currentEditPanel.setPreferredSize(new Dimension(300, getHeight()));		
 		currentEditPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));		
 		
 		currentUserTypeLabel = new JLabel();
@@ -71,7 +71,7 @@ public class MainWindow extends JFrame implements SessionListener {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().setBackground(Color.white);
 		
-		this.setSize(1000, 500);
+		this.setSize(1000, 550);
 		this.setVisible(true);
 	}
 	
