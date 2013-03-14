@@ -72,35 +72,17 @@ public class Info extends JPanel {
 	
 	public void searchPanel() {
 		borrowerInfo = new BorrowerInfo();
-		JPanel[] panels = borrowerInfo.searchPanel();
-		
-		//Search Button
-		JButton searchButton = new JButton("Search");
-		
-		this.add(panels[0], BorderLayout.CENTER);
-		this.add(panels[1], BorderLayout.LINE_END);
-		this.add(searchButton, BorderLayout.PAGE_END);
+		this.add(borrowerInfo.searchPanel());
 	}
 	
 	public void holdPanel() {
 		borrowerInfo = new BorrowerInfo();
-		JPanel panel = borrowerInfo.holdPanel();
-		
-		//Hold Button
-		JButton holdButton = new JButton("Place Hold Request");
-		
-		this.add(panel, BorderLayout.CENTER);
-		this.add(holdButton, BorderLayout.PAGE_END);
+		this.add(borrowerInfo.holdPanel(), BorderLayout.CENTER);
 	}
 	
 	public void accountPanel() {
 		borrowerInfo = new BorrowerInfo();
-		
-		//Check Account Button
-		JButton checkAccountButton = new JButton("Check Account");
-		
 		this.add(borrowerInfo.accountPanel(), BorderLayout.CENTER);
-		this.add(checkAccountButton, BorderLayout.PAGE_END);
 	}
 	
 	public void finePanel() {

@@ -4,7 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -16,23 +19,20 @@ public class BorrowerInfo {
 	
 	private JPanel labelPanel;
 	private JPanel fieldPanel;
+	private JPanel finalPanel;
+	private JButton button;
+	private GridBagConstraints c;
 	private static Font font = new Font("Times New Roman", Font.BOLD, 20);
 
 	public BorrowerInfo() {
 	}
 	
-	public JPanel[] searchPanel() {
+	public JPanel searchPanel() {
 		
 		//Labels
-		JLabel labelTitle = new JLabel("Title: ");
-		labelTitle.setFont(font);
-		labelTitle.setForeground(Color.black);
-		JLabel labelAuthor = new JLabel("Author: ");
-		labelAuthor.setFont(font);
-		labelAuthor.setForeground(Color.black);
-		JLabel labelSubject = new JLabel("Subject: ");
-		labelSubject.setFont(font);
-		labelSubject.setForeground(Color.black);
+		Label labelTitle = new Label("Title: ");
+		Label labelAuthor = new Label("Author: ");
+		Label labelSubject = new Label("Subject: ");
 
 		//Fields
 		JTextField fieldTitle = new JTextField(15);
@@ -56,22 +56,33 @@ public class BorrowerInfo {
 		fieldPanel.add(fieldAuthor);
 		fieldPanel.add(fieldSubject);
 		
-		JPanel[] panels = new JPanel[2];
-		panels[0] = labelPanel;
-		panels[1] = fieldPanel;
+		//Search Button
+		button = new JButton("Search");
 		
-		return panels;
+		finalPanel = new JPanel();
+		finalPanel.setLayout(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		finalPanel.add(labelPanel, c);
+		c.gridx = 1;
+		c.gridy = 0;
+		finalPanel.add(fieldPanel, c);
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		c.insets = new Insets(20,0,0,0);
+		c.ipadx = 20;
+		finalPanel.add(button, c);
+		
+		return finalPanel;
 	}
 	
 	public JPanel holdPanel() {
 		
 		//Labels
-		JLabel labelBook = new JLabel("Call number of book");
-		JLabel labelBookCont = new JLabel("to put on hold:");
-		labelBook.setFont(font);
-		labelBook.setForeground(Color.black);
-		labelBookCont.setFont(font);
-		labelBookCont.setForeground(Color.black);
+		Label labelBook = new Label("Call number of book");
+		Label labelBookCont = new Label("to put on hold:");
 		
 		//Fields
 		JTextField fieldBook = new JTextField(5);
@@ -80,11 +91,15 @@ public class BorrowerInfo {
 		//Set up labels with fields
 		labelBook.setLabelFor(fieldBook);
 		
+		//Hold Button
+		button = new JButton("Place Hold Request");
+		
 		//LabelPanel
-		labelPanel = new JPanel(new GridLayout(3,1,0,14));
+		labelPanel = new JPanel(new GridLayout(4,1,0,14));
 		labelPanel.add(labelBook);
 		labelPanel.add(labelBookCont);
 		labelPanel.add(fieldBook);
+		labelPanel.add(button);
 				
 		return labelPanel;
 	}
@@ -92,20 +107,32 @@ public class BorrowerInfo {
 	public JPanel accountPanel() {
 		
 		//Labels
-		JLabel labelAccount = new JLabel("Account Number: ");
-		labelAccount.setForeground(Color.black);
-		labelAccount.setFont(font);
+		Label labelAccount = new Label("Account Number: ");
 		
 		//Fields
-		JTextField fieldAccount = new JTextField(20);
+		JTextField fieldAccount = new JTextField(12);
 		
 		//Set up labels with fields
 		labelAccount.setLabelFor(fieldAccount);
 		
+		//Check Account Button
+		button = new JButton("Check Account");
+		
 		//Labels Panel
-		labelPanel = new JPanel(new GridLayout(3,1,0,14));
-		labelPanel.add(labelAccount);
-		labelPanel.add(fieldAccount);
+		labelPanel = new JPanel();
+		labelPanel.setLayout(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		labelPanel.add(labelAccount, c);
+		c.gridx = 1;
+		c.gridy = 0;
+		labelPanel.add(fieldAccount, c);
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 2;
+		c.insets = new Insets(20,0,0,0);
+		labelPanel.add(button, c);
 		
 		return labelPanel;
 	}
@@ -140,6 +167,15 @@ public class BorrowerInfo {
 		finalPanel.add(fieldPanel, BorderLayout.PAGE_END);
 		
 		return finalPanel;
+	}
+	
+	private class Label extends JLabel {
+
+		private Label(String str) {
+			super(str);
+			setFont(font);
+			setForeground(Color.black);
+		}		
 	}
 
 }

@@ -9,6 +9,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
@@ -49,7 +50,7 @@ public class MainWindow extends JFrame implements SessionListener {
 		currentEditPanel.setMaximumSize(new Dimension(250, getHeight()));
 		currentEditPanel.setMinimumSize(new Dimension(250, getHeight()));
 		currentEditPanel.setPreferredSize(new Dimension(250, getHeight()));		
-		currentEditPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+		currentEditPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));		
 		
 		currentUserTypeLabel = new JLabel();
 		currentUserTypeLabel.setText("Current User: " + currentToolbar.getName());
