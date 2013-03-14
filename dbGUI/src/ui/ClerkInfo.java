@@ -14,8 +14,19 @@ public class ClerkInfo {
 
 	}
 	
-	public JPanel addBorrower(){
+	public JPanel addBorrowerPanel(){
 		return null;
 	}
-
+	
+	public JPanel checkOutItemsPanel() {
+		return null;		
+	}
+	
+	public JPanel returnsPanel() {
+		return null;		
+	}
+	
+	public JPanel overduePanel() {
+		return null;		
+	}
 }

@@ -13,6 +13,7 @@ public class Info extends JPanel {
 	
 	protected JPanel panel;
 	BorrowerInfo borrowerInfo;
+	ClerkInfo clerkInfo;
 	
 	public Info (String string) {
 		setPanelSpecs();
@@ -118,22 +119,28 @@ public class Info extends JPanel {
 	private void addBookPanel() {
 		panel = new JPanel();
 	}
-
-	private void overduePanel() {
-		panel = new JPanel();		
+	
+	private void addBorrowerPanel() {
+		clerkInfo = new ClerkInfo();
+		this.add(clerkInfo.addBorrowerPanel(), BorderLayout.CENTER);
 	}
 
 	private void returnsPanel() {
-		panel = new JPanel();		
+		clerkInfo = new ClerkInfo();
+		this.add(clerkInfo.returnsPanel(), BorderLayout.CENTER);
 	}
 
 	private void checkOutItemsPanel() {
-		panel = new JPanel();		
+		clerkInfo = new ClerkInfo();
+		this.add(clerkInfo.checkOutItemsPanel(), BorderLayout.CENTER);
+	}
+	
+	private void overduePanel() {
+		clerkInfo = new ClerkInfo();
+		this.add(clerkInfo.overduePanel(), BorderLayout.CENTER);
 	}
 
-	private void addBorrowerPanel() {
-		panel = new JPanel();		
-	}
+	
 
 	protected void setPanelSpecs() {
 		this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
