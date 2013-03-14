@@ -26,10 +26,13 @@ public class BorrowerInfo {
 		//Labels
 		JLabel labelTitle = new JLabel("Title: ");
 		labelTitle.setFont(font);
+		labelTitle.setForeground(Color.black);
 		JLabel labelAuthor = new JLabel("Author: ");
 		labelAuthor.setFont(font);
+		labelAuthor.setForeground(Color.black);
 		JLabel labelSubject = new JLabel("Subject: ");
 		labelSubject.setFont(font);
+		labelSubject.setForeground(Color.black);
 
 		//Fields
 		JTextField fieldTitle = new JTextField(15);
@@ -66,7 +69,9 @@ public class BorrowerInfo {
 		JLabel labelBook = new JLabel("Call number of book");
 		JLabel labelBookCont = new JLabel("to put on hold:");
 		labelBook.setFont(font);
+		labelBook.setForeground(Color.black);
 		labelBookCont.setFont(font);
+		labelBookCont.setForeground(Color.black);
 		
 		//Fields
 		JTextField fieldBook = new JTextField(5);
@@ -88,6 +93,7 @@ public class BorrowerInfo {
 		
 		//Labels
 		JLabel labelAccount = new JLabel("Account Number: ");
+		labelAccount.setForeground(Color.black);
 		labelAccount.setFont(font);
 		
 		//Fields
@@ -112,6 +118,7 @@ public class BorrowerInfo {
 		txt.setWrapStyleWord(true);
 		txt.setLineWrap(true);
 		txt.setMaximumSize(new Dimension(250, 20));
+		txt.setForeground(Color.black);
 		txt.setOpaque(false);
 		
 		//Fields

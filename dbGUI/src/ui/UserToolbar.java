@@ -39,6 +39,7 @@ public class UserToolbar extends JToolBar{
 		
 		//Toolbar buttons
 		button = new JButton("Search");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -50,6 +51,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 		
 		button = new JButton("Hold Request");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -61,6 +63,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 
 		button = new JButton("Check Account");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -72,6 +75,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 		
 		button = new JButton("Pay Fine");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -95,6 +99,7 @@ public class UserToolbar extends JToolBar{
 		
 		//Toolbar buttons
 		button = new JButton("Add Book/Copy");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -106,6 +111,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 		
 		button = new JButton("Book Report");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -117,6 +123,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 
 		button = new JButton("Popular Items Report");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -140,6 +147,7 @@ public class UserToolbar extends JToolBar{
 		
 		//Toolbar buttons
 		button = new JButton("Add Borrower");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -151,6 +159,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 		
 		button = new JButton("Check out Items");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -162,6 +171,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 
 		button = new JButton("Returns");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -173,6 +183,7 @@ public class UserToolbar extends JToolBar{
 		toolbar.add(button);
 		
 		button = new JButton("Check Overdue Items");
+		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
 
 			@Override
