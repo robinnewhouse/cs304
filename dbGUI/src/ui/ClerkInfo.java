@@ -24,7 +24,8 @@ public class ClerkInfo {
 	private JTextArea txt;
 	private JButton button;
 	private GridBagConstraints c;
-	private static Font font = new Font("Times New Roman", Font.BOLD, 15);
+	private Color txtBackColor = Color.LIGHT_GRAY;
+	private static Font font = new Font("Times New Roman", Font.BOLD, 16);
 
 	public ClerkInfo() {
 
@@ -44,15 +45,15 @@ public class ClerkInfo {
 		Label labelType = new Label("Type: ");
 		
 		//Fields
-		JTextField fieldBid = new JTextField(12);
-		JTextField fieldPassword = new JTextField(12);
-		JTextField fieldName = new JTextField(12);
-		JTextField fieldAddress = new JTextField(12);
-		JTextField fieldPhone = new JTextField(12);
-		JTextField fieldEmail = new JTextField(12);
-		JTextField fieldNumber = new JTextField(12);
-		JTextField fieldExDate = new JTextField(12);
-		JTextField fieldType = new JTextField(12);
+		JTextField fieldBid = new JTextField(14);
+		JTextField fieldPassword = new JTextField(14);
+		JTextField fieldName = new JTextField(14);
+		JTextField fieldAddress = new JTextField(14);
+		JTextField fieldPhone = new JTextField(14);
+		JTextField fieldEmail = new JTextField(14);
+		JTextField fieldNumber = new JTextField(14);
+		JTextField fieldExDate = new JTextField(14);
+		JTextField fieldType = new JTextField(14);
 		
 		//Set up fields with labels
 		labelBid.setLabelFor(fieldBid);
@@ -66,7 +67,7 @@ public class ClerkInfo {
 		labelType.setLabelFor(fieldType);
 		
 		//Label Panel
-		labelPanel = new JPanel(new GridLayout(9,1,0,18));
+		labelPanel = new JPanel(new GridLayout(9,1,0,25));
 		labelPanel.add(labelBid);
 		labelPanel.add(labelPassword);
 		labelPanel.add(labelName);
@@ -113,15 +114,10 @@ public class ClerkInfo {
 	
 	public JPanel checkOutItemsPanel() {
 		
-		txt = new JTextArea();
+		txt = new Text();
 		txt.setText("Please enter the SIN or Student Number of the Borrower " +
 		"and enter the callnumbers they want to borrow, each callnumber followed by a ','");
-		txt.setFont(font);
-		txt.setLineWrap(true);
-		txt.setWrapStyleWord(true);
-		txt.setOpaque(false);
-		txt.setMinimumSize(new Dimension(250, 20));
-		txt.setForeground(Color.BLACK);
+		txt.setPreferredSize(new Dimension(250,110));
 		
 		//Labels
 		Label labelNumber = new Label("SIN or ST#: ");
@@ -135,8 +131,11 @@ public class ClerkInfo {
 		labelNumber.setLabelFor(fieldNumber);
 		labelCallNumbers.setLabelFor(fieldCallNumbers);
 		
+		//Check Out Button
+		button = new JButton("Check Out Items");
+		
 		//Label Panel
-		labelPanel = new JPanel(new GridLayout(2,1,0,18));
+		labelPanel = new JPanel(new GridLayout(2,1,0,19));
 		labelPanel.add(labelNumber);
 		labelPanel.add(labelCallNumbers);
 		
@@ -145,16 +144,24 @@ public class ClerkInfo {
 		fieldPanel.add(fieldNumber);
 		fieldPanel.add(fieldCallNumbers);
 		
-		JPanel textPanel = new JPanel(new GridLayout(1,1,0,14));
-		textPanel.add(txt);
-		
-		JPanel semiFinalPanel = new JPanel();
-		semiFinalPanel.add(labelPanel);
-		semiFinalPanel.add(fieldPanel);
-		
-		JPanel finalPanel = new JPanel(new GridLayout(2,1,0,8));
-		finalPanel.add(textPanel, BorderLayout.CENTER);
-		finalPanel.add(semiFinalPanel);
+		finalPanel = new JPanel(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		c.insets = new Insets(0,0,20,0);
+		finalPanel.add(txt, c);
+		c.gridwidth = 1;
+		c.gridx = 0;
+		c.gridy = 1;
+		finalPanel.add(labelPanel, c);
+		c.gridx = 1;
+		c.gridy = 1;
+		finalPanel.add(fieldPanel, c);
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		finalPanel.add(button, c);
 		
 		return finalPanel;		
 	}
@@ -168,13 +175,9 @@ public class ClerkInfo {
 		JTextField fieldReturn = new JTextField(15);
 		
 		//Text
-		txt = new JTextArea();
+		txt = new Text();
 		txt.setText("Please enter the call number of the book to return and click return.");
-		txt.setOpaque(false);
-		txt.setLineWrap(true);
-		txt.setFont(font);
-		txt.setForeground(Color.black);
-		txt.setWrapStyleWord(true);
+		txt.setPreferredSize(new Dimension(250,50));
 		
 		//Set up labels with fields
 		labelReturn.setLabelFor(fieldReturn);
@@ -202,10 +205,8 @@ public class ClerkInfo {
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 2;
-		c.fill = GridBagConstraints.HORIZONTAL;
 		c.insets = new Insets(0,0,20,0);
 		finalPanel.add(txt, c);
-		c.fill = 0;
 		c.gridx = 0;
 		c.gridy = 2;
 		c.gridwidth = 2;
@@ -218,14 +219,9 @@ public class ClerkInfo {
 	public JPanel overduePanel() {
 		
 		//Text
-		txt = new JTextArea();
-		txt.setFont(font);
-		txt.setForeground(Color.black);
-		txt.setOpaque(false);
-		txt.setLineWrap(true);
-		txt.setWrapStyleWord(true);
+		txt = new Text();
 		txt.setText("Please click 'Overdue Items' button to see all items that are overdue");
-		txt.setPreferredSize(new Dimension(250,50));
+		txt.setPreferredSize(new Dimension(250, 50));
 		
 		//Check overdue items button
 		button = new JButton("Overdue Items");
@@ -234,11 +230,12 @@ public class ClerkInfo {
 		fieldPanel = new JPanel();
 		fieldPanel.setLayout(new GridBagLayout());
 		c = new GridBagConstraints();
-		c.gridx = 1;
+		c.gridx = 0;
 		c.gridy = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth = 2;
+		c.insets = new Insets(0,0,20,0);
 		fieldPanel.add(txt, c);
+		c.fill = 0;
 		c.gridy = 1;
 		fieldPanel.add(button, c);
 	
@@ -252,5 +249,18 @@ public class ClerkInfo {
 			setFont(font);
 			setForeground(Color.black);
 		}		
+	}
+	
+	private class Text extends JTextArea {
+		
+		private Text() {
+			super();
+			setFont(font);
+			setLineWrap(true);
+			setWrapStyleWord(true);
+			setOpaque(false);
+			setBackground(txtBackColor);
+			setForeground(Color.BLACK);
+		}
 	}
 }

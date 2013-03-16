@@ -4,14 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import connection.Session;
 import connection.listener.SessionListener;
@@ -20,9 +27,11 @@ public class MainWindow extends JFrame implements SessionListener {
 	
 	private Session session;
 	private JLabel currentUserTypeLabel;
-	JPanel currentEditPanel, resultsPanel;
+	private JScrollPane scrollPane;
+	private JPanel container, currentEditPanel, resultsContainer;
 	private UserToolbar userToolbar;
 	private JToolBar currentToolbar;
+	private Image image;
 	Font font;
 	
 	
@@ -31,62 +40,85 @@ public class MainWindow extends JFrame implements SessionListener {
 		super("Database GUI");
 		session = new Session(this);
 		session.addSessionListener(this);
+		container = new JPanel(new BorderLayout());
+		container.setPreferredSize(new Dimension(900,500));
+		try {
+			image = ImageIO.read(new File("images/BookCase.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		userToolbar = new UserToolbar(this);
+		userToolbar.setBackground(Color.black);
 		currentToolbar = userToolbar.borrowerToolbar();
 		
 		font = new Font("Times New Roman", Font.PLAIN, 30);
-		resultsPanel = new JPanel();
+		resultsContainer = new JPanel(new BorderLayout());
 		JLabel txt = new JLabel("Results will go here");
-		txt.setVerticalAlignment(SwingConstants.CENTER);
-		txt.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel imagePanel = new JLabel();
+		imagePanel.setIcon(new ImageIcon(image));
 		txt.setFont(font);
 		txt.setForeground(Color.blue);
-		resultsPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
-		resultsPanel.add(txt, BorderLayout.CENTER);
-		resultsPanel.setBackground(Color.white);
+		resultsContainer.add(imagePanel);
+		resultsContainer.setBorder(BorderFactory.createLineBorder(Color.black, 2));
 		
 		currentEditPanel = new JPanel();
 		currentEditPanel.setMaximumSize(new Dimension(300, getHeight()));
 		currentEditPanel.setMinimumSize(new Dimension(300, getHeight()));
 		currentEditPanel.setPreferredSize(new Dimension(300, getHeight()));		
-		currentEditPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));		
+		currentEditPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
 		
 		currentUserTypeLabel = new JLabel();
 		currentUserTypeLabel.setText("Current User: " + currentToolbar.getName());
+		currentUserTypeLabel.setFont(new Font("Verdana", Font.PLAIN, 16));
 		currentUserTypeLabel.setPreferredSize(new Dimension(50, 30));
 		currentUserTypeLabel.setMaximumSize(new Dimension(50, 30));
-		currentUserTypeLabel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
 		currentUserTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		currentUserTypeLabel.setOpaque(true);
 		currentUserTypeLabel.setBackground(Color.black);
 		currentUserTypeLabel.setForeground(Color.white);
 		
-		this.add(userToolbar, BorderLayout.PAGE_START);
-		this.add(currentToolbar, BorderLayout.PAGE_START);
-		getContentPane().add(resultsPanel, BorderLayout.CENTER);
-		getContentPane().add(currentEditPanel, BorderLayout.WEST);
+		session.loadEditPanel("Add");
 		
-		getContentPane().add(currentUserTypeLabel, BorderLayout.PAGE_END);
+		container.add(userToolbar, BorderLayout.PAGE_START);
+		container.add(currentToolbar, BorderLayout.PAGE_START);
+		container.add(resultsContainer, BorderLayout.CENTER);
+		container.add(currentEditPanel, BorderLayout.WEST);
+		container.add(currentUserTypeLabel, BorderLayout.PAGE_END);
+		
+		scrollPane = new JScrollPane(container);
+		
+		//Main window specs
+		this.add(scrollPane);	
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		getContentPane().setBackground(Color.white);
-		
-		this.setSize(1000, 550);
+		this.setSize(1000, 600);
 		this.setVisible(true);
 	}
 	
 	public static void main(String[] args) {
 		
+		try {
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		new MainWindow();
 	}
 	
+	/**
+	 * Updates the User input Info panel according to which user is 
+	 * currently selected and which operation they which to perform.
+	 */
 	@Override
 	public void updateEditPanel(JPanel panel) {
 		
-		this.remove(currentEditPanel);
-		this.add(panel, BorderLayout.WEST);
+		container.remove(currentEditPanel);
+		container.add(panel, BorderLayout.WEST);
 		currentEditPanel = panel;
-		this.revalidate();
+		container.revalidate();
 	}
 	
 	public Session getSession() {
@@ -97,11 +129,11 @@ public class MainWindow extends JFrame implements SessionListener {
 	public void updateToolbar(JToolBar toolbar) {
 		
 		if(currentToolbar != null)
-			this.remove(currentToolbar);
+			container.remove(currentToolbar);
 		currentToolbar = toolbar;
-		this.add(currentToolbar, BorderLayout.PAGE_START);
+		container.add(currentToolbar, BorderLayout.PAGE_START);
 		currentUserTypeLabel.setText("Current User: " + currentToolbar.getName());
-		this.revalidate();		
+		container.revalidate();		
 	}
 
 	@Override
@@ -109,11 +141,4 @@ public class MainWindow extends JFrame implements SessionListener {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void updateUserType(String string) {
-				
-	}
-	
-
 }

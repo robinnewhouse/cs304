@@ -2,6 +2,7 @@ package ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,7 +21,7 @@ public class UserToolbar extends JToolBar{
 	private JMenuBar menuBar;
 	private JMenu userTypeMenu;
 	private JMenuItem menuItem;
-	
+	private Font font = new Font("Verdana", Font.PLAIN, 14);
 	public UserToolbar(MainWindow mainWindow) {
 		
 		this.main = mainWindow;
@@ -201,13 +202,16 @@ public class UserToolbar extends JToolBar{
 
 	private JMenuBar createMenuBar() {
 		menuBar = new JMenuBar();
+		menuBar.setBackground(Color.black);
 		userTypeMenu = new JMenu("Type of User");
-		userTypeMenu.setForeground(Color.white);
-		userTypeMenu.setBorder(BorderFactory.createLineBorder(Color.white));
+		userTypeMenu.setForeground(Color.black);
+		userTypeMenu.setFont(font);
+		//userTypeMenu.setBorder(BorderFactory.createLineBorder(Color.white));
 		userTypeMenu.getAccessibleContext().setAccessibleDescription("A menu representing which type of user is going to use it");
 		
 		//Menu Items
 		menuItem = new JMenuItem("Clerk");
+		menuItem.setFont(font);
 		menuItem.addActionListener(new ActionListener() {
 
 			@Override
@@ -220,6 +224,7 @@ public class UserToolbar extends JToolBar{
 		userTypeMenu.add(menuItem);
 		
 		menuItem = new JMenuItem("Borrower");
+		menuItem.setFont(font);
 		menuItem.addActionListener(new ActionListener() {
 
 			@Override
@@ -232,6 +237,7 @@ public class UserToolbar extends JToolBar{
 		userTypeMenu.add(menuItem);
 		
 		menuItem = new JMenuItem("Librarian");
+		menuItem.setFont(font);
 		menuItem.addActionListener(new ActionListener() {
 
 			@Override

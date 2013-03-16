@@ -19,9 +19,11 @@ public class LibrarianInfo {
 	private JPanel labelPanel;
 	private JPanel fieldPanel;
 	private JPanel finalPanel;
-	private JTextArea txt;
+	private Text txt;
 	private JButton button;
 	private GridBagConstraints c;
+	private Color txtBackColor = Color.LIGHT_GRAY;
+	private Insets bottom = new Insets(0,0,20,0);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 15);
 
 	public LibrarianInfo() {
@@ -31,29 +33,25 @@ public class LibrarianInfo {
 	public JPanel addBookPanel() {
 		
 		//Text
-		txt = new JTextArea();
+		txt = new Text();
 		txt.setText("Please enter the Book info below and click 'Add Book' button.");
-		txt.setLineWrap(true);
-		txt.setWrapStyleWord(true);
-		txt.setFont(font);
-		txt.setForeground(Color.black);
-		txt.setOpaque(false);
+		txt.setPreferredSize(new Dimension(250, 50));
 		
 		//Labels
-		Label labelCallNumber = new Label("CallNumber: ");
-		Label labelISBN = new Label("ISBN: ");
-		Label labelTitle = new Label("Title");
-		Label labelAuthor = new Label("Main Author: ");
-		Label labelPublisher = new Label("Publisher: ");
-		Label labelYear = new Label("Year: ");
+		Label labelCallNumber = new Label("CallNumber:");
+		Label labelISBN = new Label("ISBN:");
+		Label labelTitle = new Label("Title:");
+		Label labelAuthor = new Label("Main Author:");
+		Label labelPublisher = new Label("Publisher:");
+		Label labelYear = new Label("Year:");
 		
 		//Fields
-		JTextField fieldCallNumber = new JTextField(15);
-		JTextField fieldISBN = new JTextField(15);
-		JTextField fieldTitle = new JTextField(15);
-		JTextField fieldAuthor = new JTextField(15);
-		JTextField fieldPublisher = new JTextField(15);
-		JTextField fieldYear = new JTextField(15);
+		JTextField fieldCallNumber = new JTextField(14);
+		JTextField fieldISBN = new JTextField(14);
+		JTextField fieldTitle = new JTextField(14);
+		JTextField fieldAuthor = new JTextField(14);
+		JTextField fieldPublisher = new JTextField(14);
+		JTextField fieldYear = new JTextField(14);
 		
 		//Set up labels with fields
 		labelCallNumber.setLabelFor(fieldCallNumber);
@@ -62,25 +60,7 @@ public class LibrarianInfo {
 		labelAuthor.setLabelFor(fieldAuthor);
 		labelPublisher.setLabelFor(fieldPublisher);
 		labelYear.setLabelFor(fieldYear);
-		
-		//LabelPanel
-		labelPanel = new JPanel(new GridLayout(6,1,0,18));
-		labelPanel.add(labelCallNumber);
-		labelPanel.add(labelISBN);
-		labelPanel.add(labelTitle);
-		labelPanel.add(labelAuthor);
-		labelPanel.add(labelPublisher);
-		labelPanel.add(labelYear);
-		
-		//Field Panel
-		fieldPanel = new JPanel(new GridLayout(6,1,0,16));
-		fieldPanel.add(fieldCallNumber);
-		fieldPanel.add(fieldISBN);
-		fieldPanel.add(fieldTitle);
-		fieldPanel.add(fieldAuthor);
-		fieldPanel.add(fieldPublisher);
-		fieldPanel.add(fieldYear);
-		
+				
 		//Add Book Button
 		button = new JButton("Add Book");
 	
@@ -91,19 +71,61 @@ public class LibrarianInfo {
 		c.gridx = 0;
 		c.gridy = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = new Insets(0,0,20,0);
+		c.insets = bottom;
 		finalPanel.add(txt, c);
-		c.gridwidth = 1;
 		c.fill = 0;
+		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy = 1;
-		finalPanel.add(labelPanel, c);
+		c.insets = bottom;
+		finalPanel.add(labelCallNumber, c);
 		c.gridx = 1;
-		finalPanel.add(fieldPanel, c);
+		c.gridy = 1;
+		c.insets = bottom;
+		finalPanel.add(fieldCallNumber, c);
 		c.gridx = 0;
 		c.gridy = 2;
+		c.insets = bottom;
+		finalPanel.add(labelISBN, c);
+		c.gridx = 1;
+		c.gridy = 2;
+		c.insets = bottom;
+		finalPanel.add(fieldISBN, c);
+		c.gridx = 0;
+		c.gridy = 3;
+		c.insets = bottom;
+		finalPanel.add(labelTitle, c);
+		c.gridx = 1;
+		c.gridy = 3;
+		c.insets = bottom;
+		finalPanel.add(fieldTitle, c);
+		c.gridx = 0;
+		c.gridy = 4;
+		c.insets = bottom;
+		finalPanel.add(labelAuthor, c);
+		c.gridx = 1;
+		c.gridy = 4;
+		c.insets = bottom;
+		finalPanel.add(fieldAuthor, c);
+		c.gridx = 0;
+		c.gridy = 5;
+		c.insets = bottom;
+		finalPanel.add(labelPublisher, c);
+		c.gridx = 1;
+		c.gridy = 5;
+		c.insets = bottom;
+		finalPanel.add(fieldPublisher, c);
+		c.gridx = 0;
+		c.gridy = 6;
+		c.insets = bottom;
+		finalPanel.add(labelYear, c);
+		c.gridx = 1;
+		c.gridy = 6;
+		c.insets = bottom;
+		finalPanel.add(fieldYear, c);
+		c.gridx = 0;
+		c.gridy = 7;
 		c.gridwidth = 2;
-		c.insets = new Insets(20,0,0,0);
 		finalPanel.add(button, c);
 		
 		return finalPanel;
@@ -113,14 +135,10 @@ public class LibrarianInfo {
 	public JPanel bookReportPanel() {
 		
 		//Text
-		txt = new JTextArea();
+		txt = new Text();
 		txt.setText("Click 'Book Report' to see all Books that are currently out. Include a " +
 		"subject to narrow the results");
-		txt.setLineWrap(true);
-		txt.setWrapStyleWord(true);
-		txt.setOpaque(false);
-		txt.setFont(font);
-		txt.setForeground(Color.black);
+		txt.setPreferredSize(new Dimension(250, 70));
 		
 		//Label
 		Label labelSubject = new Label("Subject: ");
@@ -141,7 +159,7 @@ public class LibrarianInfo {
 		c.gridy = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth = 2;
-		c.insets = new Insets(0,0,20,0);
+		c.insets = bottom;
 		finalPanel.add(txt, c);
 		c.fill = 0;
 		c.gridwidth = 1;
@@ -163,22 +181,18 @@ public class LibrarianInfo {
 	public JPanel popularReportPanel() {
 		
 		//Text
-		txt = new JTextArea();
+		txt = new Text();
 		txt.setText("Enter a year and the number of popular books and Click 'Popular Report' " +
 				"to see the most popular books in a given year.");
-		txt.setLineWrap(true);
-		txt.setWrapStyleWord(true);
-		txt.setOpaque(false);
-		txt.setFont(font);
-		txt.setForeground(Color.black);
+		txt.setPreferredSize(new Dimension(250, 90));
 
 		//Label
 		Label labelYear = new Label("Year: ");
 		Label labelN = new Label("How many: ");
 
 		//Field
-		JTextField fieldYear = new JTextField(17);
-		JTextField fieldN = new JTextField(17);
+		JTextField fieldYear = new JTextField(14);
+		JTextField fieldN = new JTextField(14);
 
 		//Set up labels with fields
 		labelYear.setLabelFor(fieldYear);
@@ -192,15 +206,12 @@ public class LibrarianInfo {
 		c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth = 2;
-		c.insets = new Insets(0,0,20,0);
+		c.insets = bottom;
 		finalPanel.add(txt, c);
-		c.fill = 0;
 		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy = 1;
-		c.anchor = GridBagConstraints.WEST;
 		finalPanel.add(labelYear, c);
 		c.gridx = 1;
 		c.gridy = 1;
@@ -211,11 +222,10 @@ public class LibrarianInfo {
 		c.gridx = 1;
 		c.gridy = 2;
 		finalPanel.add(fieldN, c);
-		c.anchor = GridBagConstraints.CENTER;
 		c.gridx = 0;
 		c.gridy = 3;
-		c.insets = new Insets(20,0,0,0);
 		c.gridwidth = 2;
+		c.insets = new Insets(20,0,0,0);
 		finalPanel.add(button, c);
 
 		return finalPanel;
@@ -228,5 +238,18 @@ public class LibrarianInfo {
 			setFont(font);
 			setForeground(Color.black);
 		}		
+	}
+	
+	private class Text extends JTextArea {
+		
+		private Text() {
+			super();
+			setFont(font);
+			setLineWrap(true);
+			setWrapStyleWord(true);
+			setOpaque(false);
+			setBackground(txtBackColor);
+			setForeground(Color.BLACK);
+		}
 	}
 }

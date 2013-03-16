@@ -11,7 +11,5 @@ public interface SessionListener {
 	public void updateEditPanel(JPanel panel);
 	
 	public void updateResultsPanel(JLabel label);
-	
-	public void updateUserType(String string);
 
 }

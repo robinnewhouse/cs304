@@ -21,13 +21,21 @@ public class BorrowerInfo {
 	private JPanel fieldPanel;
 	private JPanel finalPanel;
 	private JButton button;
+	private Text txt;
 	private GridBagConstraints c;
+	private Color txtBackColor = Color.lightGray;
+	private Insets bottom = new Insets(0,0,20,0);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 20);
 
 	public BorrowerInfo() {
 	}
 	
 	public JPanel searchPanel() {
+		
+		//Text
+		txt = new Text();
+		txt.setText("Enter the information to search on and then click 'Search'.");
+		txt.setPreferredSize(new Dimension(250, 60));
 		
 		//Labels
 		Label labelTitle = new Label("Title: ");
@@ -43,18 +51,6 @@ public class BorrowerInfo {
 		labelTitle.setLabelFor(fieldTitle);
 		labelAuthor.setLabelFor(fieldAuthor);
 		labelSubject.setLabelFor(fieldSubject);
-
-		//Label Panel
-		labelPanel = new JPanel(new GridLayout(3,1,0,14));
-		labelPanel.add(labelTitle);
-		labelPanel.add(labelAuthor);
-		labelPanel.add(labelSubject);
-
-		//Field Panel
-		fieldPanel = new JPanel(new GridLayout(3,1,0,18));
-		fieldPanel.add(fieldTitle);
-		fieldPanel.add(fieldAuthor);
-		fieldPanel.add(fieldSubject);
 		
 		//Search Button
 		button = new JButton("Search");
@@ -64,15 +60,37 @@ public class BorrowerInfo {
 		c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
-		finalPanel.add(labelPanel, c);
+		c.gridwidth = 2;
+		c.insets = bottom;
+		finalPanel.add(txt, c);
+		c.gridwidth = 1;
+		c.gridx = 0;
+		c.gridy = 1;
+		c.insets = bottom;
+		finalPanel.add(labelTitle, c);
 		c.gridx = 1;
-		c.gridy = 0;
-		finalPanel.add(fieldPanel, c);
+		c.gridy = 1;
+		c.insets = bottom;
+		finalPanel.add(fieldTitle, c);
 		c.gridx = 0;
 		c.gridy = 2;
+		c.insets = bottom;
+		finalPanel.add(labelAuthor, c);
+		c.gridx = 1;
+		c.gridy = 2;
+		c.insets = bottom;
+		finalPanel.add(fieldAuthor, c);
+		c.gridx = 0;
+		c.gridy = 3;
+		c.insets = bottom;
+		finalPanel.add(labelSubject, c);
+		c.gridx = 1;
+		c.gridy = 3;
+		c.insets = bottom;
+		finalPanel.add(fieldSubject, c);
+		c.gridx = 0;
+		c.gridy = 4;
 		c.gridwidth = 2;
-		c.insets = new Insets(20,0,0,0);
-		c.ipadx = 20;
 		finalPanel.add(button, c);
 		
 		return finalPanel;
@@ -81,25 +99,28 @@ public class BorrowerInfo {
 	public JPanel holdPanel() {
 		
 		//Labels
-		Label labelBook = new Label("Call number of book");
-		Label labelBookCont = new Label("to put on hold:");
+		txt = new Text();
+		txt.setText("Please enter the callnumber of the book to put on hold.");
+		txt.setPreferredSize(new Dimension(250,70));
 		
 		//Fields
-		JTextField fieldBook = new JTextField(5);
-		fieldBook.setColumns(15);
-		
-		//Set up labels with fields
-		labelBook.setLabelFor(fieldBook);
-		
+		JTextField fieldBook = new JTextField(15);
+				
 		//Hold Button
 		button = new JButton("Place Hold Request");
 		
 		//LabelPanel
-		labelPanel = new JPanel(new GridLayout(4,1,0,14));
-		labelPanel.add(labelBook);
-		labelPanel.add(labelBookCont);
-		labelPanel.add(fieldBook);
-		labelPanel.add(button);
+		labelPanel = new JPanel(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.insets = bottom;
+		labelPanel.add(txt, c);
+		c.gridy = 1;
+		c.insets = bottom;
+		labelPanel.add(fieldBook, c);
+		c.gridy = 2;
+		labelPanel.add(button, c);
 				
 		return labelPanel;
 	}
@@ -138,16 +159,7 @@ public class BorrowerInfo {
 	}
 	
 	public JPanel finePanel() {
-		JTextArea txt = new JTextArea();
-		txt.setText("Please click on 'Check Fines' to see outstanding fines " +
-		"and enter the amount you wish to pay");
-		txt.setFont(font);
-		txt.setWrapStyleWord(true);
-		txt.setLineWrap(true);
-		txt.setMaximumSize(new Dimension(250, 20));
-		txt.setForeground(Color.black);
-		txt.setOpaque(false);
-		
+				
 		//Fields
 		JTextField fineField = new JTextField(20);
 		
@@ -155,16 +167,28 @@ public class BorrowerInfo {
 		JButton fineButton = new JButton("Pay Fine");
 		JButton checkFineButton = new JButton("Check Fines");
 		
+		//Text
+		txt = new Text();
+		txt.setText("Please click on 'Check Fines' to see outstanding fines " +
+		"and enter the amount you wish to pay");
+		txt.setPreferredSize(new Dimension(250,110));
+		
 		//Panel
-		JPanel textPanel = new JPanel(new GridLayout(1,1,0,14));
-		textPanel.add(txt);
-		JPanel fieldPanel = new JPanel(new GridLayout(3,1,0,14));
+		fieldPanel = new JPanel(new GridLayout(3,1,0,14));
 		fieldPanel.add(checkFineButton);
 		fieldPanel.add(fineField);
 		fieldPanel.add(fineButton);
-		JPanel finalPanel = new JPanel(new GridLayout(2,1,0,8));
-		finalPanel.add(textPanel, BorderLayout.CENTER);
-		finalPanel.add(fieldPanel, BorderLayout.PAGE_END);
+		
+		finalPanel = new JPanel(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill= GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(0,0,20,0);
+		finalPanel.add(txt, c);
+		c.fill = 0;
+		c.gridy = 1;
+		finalPanel.add(fieldPanel, c);
 		
 		return finalPanel;
 	}
@@ -176,6 +200,19 @@ public class BorrowerInfo {
 			setFont(font);
 			setForeground(Color.black);
 		}		
+	}
+	
+	private class Text extends JTextArea {
+		
+		private Text() {
+			super();
+			setFont(font);
+			setLineWrap(true);
+			setWrapStyleWord(true);
+			setOpaque(false);
+			setBackground(txtBackColor);
+			setForeground(Color.BLACK);
+		}
 	}
 
 }
