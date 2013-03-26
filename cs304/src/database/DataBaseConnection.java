@@ -3,6 +3,7 @@ package database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DataBaseConnection {	
 
@@ -30,10 +31,13 @@ public class DataBaseConnection {
 
 	}
 	
-	public void insert(String... varargs) {
-		for(String str: varargs)
-		{
-			System.out.println(str);
+	public void insertBook(String... varargs) {
+		try {
+			Statement stm = con.createStatement();
+			int rowCount = stm.executeUpdate("INSERT INTO book VALUES (");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 	}

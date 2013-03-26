@@ -49,12 +49,12 @@ public class LibrarianInfo {
 		Label labelYear = new Label("Year:");
 
 		//Fields
-		JTextField fieldCallNumber = new JTextField(14);
-		JTextField fieldISBN = new JTextField(14);
-		JTextField fieldTitle = new JTextField(14);
-		JTextField fieldAuthor = new JTextField(14);
-		JTextField fieldPublisher = new JTextField(14);
-		JTextField fieldYear = new JTextField(14);
+		final JTextField fieldCallNumber = new JTextField(14);
+		final JTextField fieldISBN = new JTextField(14);
+		final JTextField fieldTitle = new JTextField(14);
+		final JTextField fieldAuthor = new JTextField(14);
+		final JTextField fieldPublisher = new JTextField(14);
+		final JTextField fieldYear = new JTextField(14);
 
 		//Set up labels with fields
 		labelCallNumber.setLabelFor(fieldCallNumber);
@@ -70,7 +70,8 @@ public class LibrarianInfo {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				db.insert("hello", "my", "name", "is", "Abe");
+				db.insertBook(fieldCallNumber.getText(), fieldISBN.getText(), fieldTitle.getText(), 
+						fieldAuthor.getText(), fieldPublisher.getText(), fieldYear.getText());
 			}
 
 		});
