@@ -7,6 +7,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -136,6 +138,12 @@ public class ClerkInfo {
 
 		//Check Out Button
 		button = new JButton("Check Out Items");
+		
+		button.addActionListener(new ActionListener() {
+			public void ActionPerformed(ActionEvent e) {
+				db.checkOutItems();
+			}
+		});
 
 		//Label Panel
 		labelPanel = new JPanel(new GridLayout(2,1,0,19));
