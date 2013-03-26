@@ -29,8 +29,10 @@ public class BorrowerInfo {
 	private Color panelBackColor = new Color(59,67,103);
 	private Insets bottom = new Insets(0,0,20,0);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 20);
+	private DataBaseConnection db;
 
 	public BorrowerInfo(DataBaseConnection db) {
+		this.db = db;
 	}
 
 	public JPanel searchPanel() {
