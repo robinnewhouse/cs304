@@ -15,6 +15,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import database.DataBaseConnection;
+
 public class BorrowerInfo {
 
 	private JPanel labelPanel;
@@ -28,7 +30,7 @@ public class BorrowerInfo {
 	private Insets bottom = new Insets(0,0,20,0);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 20);
 
-	public BorrowerInfo() {
+	public BorrowerInfo(DataBaseConnection db) {
 	}
 
 	public JPanel searchPanel() {

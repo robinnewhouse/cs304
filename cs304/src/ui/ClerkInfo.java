@@ -17,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import database.DataBaseConnection;
+
 public class ClerkInfo {
 
 	private JPanel labelPanel;
@@ -28,9 +30,10 @@ public class ClerkInfo {
 	private Color txtBackColor = Color.white;
 	private Color panelBackColor = new Color(59,67,103);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 16);
-
-	public ClerkInfo() {
-
+	private DataBaseConnection db;
+	
+	public ClerkInfo(DataBaseConnection db) {
+		this.db = db;
 	}
 
 	public JPanel addBorrowerPanel(){
@@ -129,8 +132,8 @@ public class ClerkInfo {
 		Label labelCallNumbers = new Label("CallNumbers: ");
 
 		//Fields
-		JTextField fieldNumber = new JTextField(15);
-		JTextField fieldCallNumbers = new JTextField(15);
+		final JTextField fieldNumber = new JTextField(15);
+		final JTextField fieldCallNumbers = new JTextField(15);
 
 		//Set up labels with fields
 		labelNumber.setLabelFor(fieldNumber);
@@ -140,8 +143,15 @@ public class ClerkInfo {
 		button = new JButton("Check Out Items");
 		
 		button.addActionListener(new ActionListener() {
-			public void ActionPerformed(ActionEvent e) {
-				db.checkOutItems();
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//pass card number and call number values
+				String callnum = fieldCallNumbers.getText();
+				String[] callnums = callnum.split(" ");
+				for (int i = 0; i < callnums.length; i++) {
+				System.out.println(callnums[i]);
+				}
+				db.checkOutItems(fieldNumber.getText(), callnums);
 			}
 		});
 

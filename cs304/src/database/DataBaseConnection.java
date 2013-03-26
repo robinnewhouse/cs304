@@ -11,10 +11,10 @@ public class DataBaseConnection {
 	Connection con;
 
 	public DataBaseConnection() {
-
+		connectToDB();
 	}
 
-	public void connectToDB() {
+	private void connectToDB() {
 
 		//Register the driver
 		try {
@@ -25,12 +25,23 @@ public class DataBaseConnection {
 
 		//Get the Connection
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "username", "password");
+
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
+	}
+	
+	public void insert(String... varargs) {
+		for(String str: varargs)
+		{
+			System.out.println(str);
+		}
 		
 	}
+	
 
 	/**
 	 * Check-out items borrowed by a borrower. To borrow items, borrowers provide their card number
@@ -39,17 +50,17 @@ public class DataBaseConnection {
 	 * Then it creates one or more borrowing records and prints a note with the items and their 
 	 * due day (which is giver to the borrower)
 	 */
-	public void checkOutItems (int cardnum, int[] callnums) {
+	public void checkOutItems (String cardnum, String[] callnums) {
 		try {
 			Statement st = con.createStatement();
 			String sql = "SELECT name FROM borrower WHERE bid = " + cardnum;
 			ResultSet rs = st.executeQuery(sql);
-			boolean b = rs.getBoolean(0);
-			if (b) {
-				System.out.println(b);
-			} else {
-				System.out.println("Cardnumber or call number list is invalid");
-			}
+//			boolean b = rs.getBoolean(1);
+//			if (b) {
+//				System.out.println(b);
+//			} else {
+//				System.out.println("Cardnumber or call number list is invalid");
+//			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

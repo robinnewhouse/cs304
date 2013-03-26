@@ -8,17 +8,20 @@ import javax.swing.JToolBar;
 import ui.Info;
 import ui.MainWindow;
 import connection.listener.SessionListener;
+import database.DataBaseConnection;
 
 
 public class Session {
 
 	private Info info;
 	private MainWindow main;
+	private DataBaseConnection db;
 
 	private Set<SessionListener> sessionListeners = new HashSet<SessionListener>();
 
 	public Session(MainWindow mainWindow) {
 		this.main = mainWindow;
+		db = new DataBaseConnection();
 	}
 
 	public synchronized void addSessionListener(SessionListener listener) {
@@ -30,7 +33,7 @@ public class Session {
 	}
 
 	public void loadEditPanel(String string) {
-		info = new Info(string);
+		info = new Info(string, db);
 		for (SessionListener listener : sessionListeners)
 			listener.updateEditPanel(info.getPanel());
 	}
