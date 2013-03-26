@@ -6,12 +6,16 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import database.DataBaseConnection;
 
 public class LibrarianInfo {
 
@@ -23,9 +27,10 @@ public class LibrarianInfo {
 	private Color panelBackColor = new Color(59,67,103);
 	private Insets bottom = new Insets(0,0,20,0);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 15);
+	private DataBaseConnection db;
 
-	public LibrarianInfo() {
-
+	public LibrarianInfo(DataBaseConnection db) {
+		this.db = db;
 	}
 
 	public JPanel addBookPanel() {
@@ -61,6 +66,14 @@ public class LibrarianInfo {
 
 		//Add Book Button
 		button = new JButton("Add Book");
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				db.insert("hello", "my", "name", "is", "Abe");
+			}
+
+		});
 
 		//Final Panel
 		finalPanel = new JPanel(new GridBagLayout());

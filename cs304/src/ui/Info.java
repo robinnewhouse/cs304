@@ -8,14 +8,18 @@ import java.awt.FlowLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import database.DataBaseConnection;
+
 public class Info extends JPanel {
 
 	protected JPanel panel;
 	BorrowerInfo borrowerInfo;
 	ClerkInfo clerkInfo;
 	LibrarianInfo librarianInfo;
+	DataBaseConnection db;
 
-	public Info (String string) {
+	public Info (String string, DataBaseConnection db) {
+		this.db = db;
 		setPanelSpecs();
 		
 		if (string.contains("Search"))
@@ -43,58 +47,58 @@ public class Info extends JPanel {
 	}
 
 	public void searchPanel() {
-		borrowerInfo = new BorrowerInfo();
+		borrowerInfo = new BorrowerInfo(db);
 		this.add(borrowerInfo.searchPanel());
 	}
 
 	public void holdPanel() {
-		borrowerInfo = new BorrowerInfo();
+		borrowerInfo = new BorrowerInfo(db);
 		this.add(borrowerInfo.holdPanel(), BorderLayout.CENTER);
 	}
 
 	public void accountPanel() {
-		borrowerInfo = new BorrowerInfo();
+		borrowerInfo = new BorrowerInfo(db);
 		this.add(borrowerInfo.accountPanel(), BorderLayout.CENTER);
 	}
 
 	public void finePanel() {
-		borrowerInfo = new BorrowerInfo();
+		borrowerInfo = new BorrowerInfo(db);
 		this.add(borrowerInfo.finePanel(), BorderLayout.CENTER);
 	}
 
 	private void addBookPanel() {
-		librarianInfo = new LibrarianInfo();
+		librarianInfo = new LibrarianInfo(db);
 		this.add(librarianInfo.addBookPanel(), BorderLayout.CENTER);
 	}
 
 
 	private void bookReportPanel() {
-		librarianInfo = new LibrarianInfo();
+		librarianInfo = new LibrarianInfo(db);
 		this.add(librarianInfo.bookReportPanel(), BorderLayout.CENTER);
 	}
 
 	private void popularReportPanel() {
-		librarianInfo = new LibrarianInfo();
+		librarianInfo = new LibrarianInfo(db);
 		this.add(librarianInfo.popularReportPanel(), BorderLayout.CENTER);
 	}
 
 	private void addBorrowerPanel() {
-		clerkInfo = new ClerkInfo();
+		clerkInfo = new ClerkInfo(db);
 		this.add(clerkInfo.addBorrowerPanel(), BorderLayout.CENTER);
 	}
 
 	private void returnsPanel() {
-		clerkInfo = new ClerkInfo();
+		clerkInfo = new ClerkInfo(db);
 		this.add(clerkInfo.returnsPanel(), BorderLayout.CENTER);
 	}
 
 	private void checkOutItemsPanel() {
-		clerkInfo = new ClerkInfo();
+		clerkInfo = new ClerkInfo(db);
 		this.add(clerkInfo.checkOutItemsPanel(), BorderLayout.CENTER);
 	}
 
 	private void overduePanel() {
-		clerkInfo = new ClerkInfo();
+		clerkInfo = new ClerkInfo(db);
 		this.add(clerkInfo.overduePanel(), BorderLayout.CENTER);
 	}
 

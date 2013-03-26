@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import database.DataBaseConnection;
+
 public class ClerkInfo {
 
 	private JPanel labelPanel;
@@ -27,7 +29,7 @@ public class ClerkInfo {
 	private Color panelBackColor = new Color(59,67,103);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 16);
 
-	public ClerkInfo() {
+	public ClerkInfo(DataBaseConnection db) {
 
 	}
 
