@@ -7,6 +7,7 @@ import javax.swing.JToolBar;
 
 import ui.Info;
 import ui.MainWindow;
+import ui.Result;
 import connection.listener.SessionListener;
 import database.DataBaseConnection;
 
@@ -21,7 +22,7 @@ public class Session {
 
 	public Session(MainWindow mainWindow) {
 		this.main = mainWindow;
-		db = new DataBaseConnection();
+		db = new DataBaseConnection(this);
 	}
 
 	public synchronized void addSessionListener(SessionListener listener) {
@@ -41,6 +42,11 @@ public class Session {
 	public void loadToolbar(JToolBar toolbar) {
 		for (SessionListener listener : sessionListeners)
 			listener.updateToolbar(toolbar);
+	}
+	
+	public void loadResultPanel(Result result) {
+		for (SessionListener listener: sessionListeners)
+			listener.updateResultsPanel(result.getPanel());
 	}
 
 }

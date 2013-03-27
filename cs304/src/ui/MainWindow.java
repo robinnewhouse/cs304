@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -13,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -27,8 +30,9 @@ public class MainWindow extends JFrame implements SessionListener {
 
 	private Session session;
 	private JLabel currentUserTypeLabel;
-	private JScrollPane scrollPane;
+	private JScrollPane scrollPane, currentResult;
 	private JPanel container, currentEditPanel, resultsContainer;
+	private JLayeredPane lPane;
 	private UserToolbar userToolbar;
 	private JToolBar currentToolbar;
 	private Image image;
@@ -51,19 +55,24 @@ public class MainWindow extends JFrame implements SessionListener {
 		userToolbar = new UserToolbar(this);
 		userToolbar.setBackground(Color.black);
 		currentToolbar = userToolbar.borrowerToolbar();
-
-		resultsContainer = new JPanel(new BorderLayout());
+		
+		lPane = new JLayeredPane();
 		JLabel imagePanel = new JLabel();
 		imagePanel.setIcon(new ImageIcon(image));
+		lPane.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+		lPane.setBounds(0, 0, 1200, 820);
+		resultsContainer = new JPanel(new BorderLayout());
 		resultsContainer.add(imagePanel);
+		resultsContainer.setBounds(0,0,1200,820);
 		resultsContainer.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+		resultsContainer.setOpaque(true);
+		lPane.add(resultsContainer, new Integer(0), 0);
 
 		currentEditPanel = new JPanel();
 		currentEditPanel.setMaximumSize(new Dimension(300, getHeight()));
 		currentEditPanel.setMinimumSize(new Dimension(300, getHeight()));
 		currentEditPanel.setPreferredSize(new Dimension(300, getHeight()));		
 		currentEditPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
-		currentEditPanel.setBackground(Color.ORANGE);
 
 		currentUserTypeLabel = new JLabel();
 		currentUserTypeLabel.setText("Current User: " + currentToolbar.getName());
@@ -79,7 +88,7 @@ public class MainWindow extends JFrame implements SessionListener {
 
 		container.add(userToolbar, BorderLayout.PAGE_START);
 		container.add(currentToolbar, BorderLayout.PAGE_START);
-		container.add(resultsContainer, BorderLayout.CENTER);
+		container.add(lPane, BorderLayout.CENTER);
 		container.add(currentEditPanel, BorderLayout.WEST);
 		container.add(currentUserTypeLabel, BorderLayout.PAGE_END);
 
@@ -88,7 +97,7 @@ public class MainWindow extends JFrame implements SessionListener {
 		//Main window specs
 		this.add(scrollPane);	
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setSize(1000, 600);
+		this.setSize(1000, 700);
 		this.setVisible(true);
 	}
 
@@ -132,8 +141,39 @@ public class MainWindow extends JFrame implements SessionListener {
 		container.revalidate();		
 	}
 
-	public void updateResultsPanel(JLabel label) {
-		// TODO Auto-generated method stub
+	public void updateResultsPanel(final JScrollPane panel) {
+		if(currentResult != null)
+			lPane.remove(currentResult);
+		currentResult = panel;
+		currentResult.setBounds(200, 100,lPane.getWidth()/2, lPane.getHeight()/2);
+		lPane.add(currentResult, new Integer(1), 0);
+		lPane.revalidate();
+		lPane.addComponentListener(new ComponentListener() {
 
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				currentResult.setBounds((lPane.getWidth()-currentResult.getWidth())/2, ((lPane.getHeight()-currentResult.getHeight())/2)-25,
+						lPane.getWidth()/2, lPane.getHeight()/2);
+			}
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 	}
 }

@@ -1,7 +1,7 @@
 package connection.listener;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 public interface SessionListener {
@@ -10,6 +10,6 @@ public interface SessionListener {
 
 	public void updateEditPanel(JPanel panel);
 
-	public void updateResultsPanel(JLabel label);
+	public void updateResultsPanel(JScrollPane panel);
 
 }

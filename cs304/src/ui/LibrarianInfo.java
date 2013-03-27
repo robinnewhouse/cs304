@@ -156,13 +156,24 @@ public class LibrarianInfo {
 		Label labelSubject = new Label("Subject: ");
 
 		//Field
-		JTextField fieldSubject = new JTextField(17);
+		final JTextField fieldSubject = new JTextField(17);
 
 		//Set up labels with fields
 		labelSubject.setLabelFor(fieldSubject);
 
 		//Book Report Button
 		button = new JButton("Book Report");
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(fieldSubject.getText().trim().isEmpty())
+					db.bookReport();
+				else
+					db.bookReport(fieldSubject.getText());
+			}
+
+		});
 
 		//finalPanel
 		finalPanel = new JPanel(new GridBagLayout());
@@ -204,8 +215,8 @@ public class LibrarianInfo {
 		Label labelN = new Label("How many: ");
 
 		//Field
-		JTextField fieldYear = new JTextField(14);
-		JTextField fieldN = new JTextField(14);
+		final JTextField fieldYear = new JTextField(14);
+		final JTextField fieldN = new JTextField(14);
 
 		//Set up labels with fields
 		labelYear.setLabelFor(fieldYear);
@@ -213,6 +224,17 @@ public class LibrarianInfo {
 
 		//Book Report Button
 		button = new JButton("Popular Report");
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(fieldYear.getText().trim().isEmpty() || fieldN.getText().trim().isEmpty())
+					System.out.println("Error, please fill in both boxes");
+				else
+					db.popularReport(fieldYear.getText(), fieldN.getText());
+			}
+
+		});
 
 		//finalPanel
 		finalPanel = new JPanel(new GridBagLayout());

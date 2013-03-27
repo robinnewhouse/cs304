@@ -50,15 +50,15 @@ public class ClerkInfo {
 		Label labelType = new Label("Type: ");
 
 		//Fields
-		JTextField fieldBid = new JTextField(14);
-		JTextField fieldPassword = new JTextField(14);
-		JTextField fieldName = new JTextField(14);
-		JTextField fieldAddress = new JTextField(14);
-		JTextField fieldPhone = new JTextField(14);
-		JTextField fieldEmail = new JTextField(14);
-		JTextField fieldNumber = new JTextField(14);
-		JTextField fieldExDate = new JTextField(14);
-		JTextField fieldType = new JTextField(14);
+		final JTextField fieldBid = new JTextField(14);
+		final JTextField fieldPassword = new JTextField(14);
+		final JTextField fieldName = new JTextField(14);
+		final JTextField fieldAddress = new JTextField(14);
+		final JTextField fieldPhone = new JTextField(14);
+		final JTextField fieldEmail = new JTextField(14);
+		final JTextField fieldNumber = new JTextField(14);
+		final JTextField fieldExDate = new JTextField(14);
+		final JTextField fieldType = new JTextField(14);
 
 		//Set up fields with labels
 		labelBid.setLabelFor(fieldBid);
@@ -100,6 +100,16 @@ public class ClerkInfo {
 
 		//Add Borrower Button
 		button = new JButton("Add Borrower");
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				db.insertBorrower(fieldBid.getText(), fieldPassword.getText(), fieldName.getText(),
+						fieldAddress.getText(), fieldPhone.getText(), fieldEmail.getText(),
+						fieldNumber.getText(), fieldExDate.getText(), fieldType.getText());
+			}
+		
+		});
 
 		finalPanel = new JPanel();
 		finalPanel.setLayout(new GridBagLayout());

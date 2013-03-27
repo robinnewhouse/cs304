@@ -1,16 +1,30 @@
 package database;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+import javax.swing.JPanel;
+
+import connection.Session;
+
+import ui.Result;
 
 public class DataBaseConnection {	
 
 	Connection con;
+	Session session;
 
-	public DataBaseConnection() {
+	public DataBaseConnection(Session session) {
+		this.session = session;
 		connectToDB();
 	}
 
@@ -34,10 +48,35 @@ public class DataBaseConnection {
 
 	}
 	
+	/**
+	 * Inserts an entry into the Book table in the database
+	 * 
+	 * @param varargs
+	 * 		a list of strings containing the callNumber, ISBN, Title,
+	 * 		MainAuthor, Publisher and year of a book, in that order. 
+	 */
 	public void insertBook(String... varargs) {
+		
+		PreparedStatement ps;
+		
 		try {
-			Statement stm = con.createStatement();
-			int rowCount = stm.executeUpdate("INSERT INTO book VALUES (");
+			ps = con.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
+			ps.setString(1,varargs[0]);
+			ps.setString(2,varargs[1]);
+			ps.setString(3,varargs[2]);
+			ps.setString(4,varargs[3]);
+			ps.setString(5,varargs[4]);
+			ps.setInt(6,Integer.parseInt(varargs[5]));
+			//Execute the insert
+			int rowCount = ps.executeUpdate();
+			System.out.println("Added " + rowCount + " to Book Table");
+			
+			//Commit changes
+			con.commit();
+			
+			//Close prepared statement
+			ps.close();
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -45,6 +84,123 @@ public class DataBaseConnection {
 		
 	}
 	
+	/**
+	 * Inserts an entry into the Borrower table in the database
+	 * 
+	 * @param varargs
+	 * 		a list of strings containing the bid, password, name, address,
+	 * 		phone number, email address, sin or student #, expiry date, and type
+	 * 		of a borrower, in that order
+	 */
+	public void insertBorrower(String... varargs) {
+		
+		PreparedStatement ps;
+		String strDate = varargs[7];
+		String phone = varargs[4].replaceAll("[\\.-]", "");
+		java.util.Date jDate = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		try {
+			jDate = sdf.parse(strDate);
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(jDate);
+		Date sqlDate = new Date(calendar.getTimeInMillis());
+				
+		try {
+			ps = con.prepareStatement("INSERT INTO borrower VALUES (?,?,?,?,?,?,?,?,?)");
+			ps.setString(1,varargs[0]);
+			ps.setString(2,varargs[1]);
+			ps.setString(3,varargs[2]);
+			ps.setString(4,varargs[3]);
+			ps.setLong(5,Long.parseLong(phone));
+			ps.setString(6,varargs[5]);
+			ps.setLong(7,Long.parseLong(varargs[6]));
+			ps.setDate(8,sqlDate);
+			ps.setString(9,varargs[8]);
+			//Execute
+			int rowCount = ps.executeUpdate();
+			System.out.println("Added " + rowCount + " rows to Borrower Table");
+			
+			con.commit();
+			
+			ps.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Lists all the books that are currently checked out. Optional parameter can include a 
+	 * subject to narrow down the results.
+	 * 
+	 * @param subject
+	 * 		Possible parameter to search subject from has_subject table
+	 */
+	public void bookReport(String... varargs) {
+		
+		//Check if optional parameter is there
+		if(varargs.length != 0)
+		{
+			try {
+				Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs;
+				rs = stm.executeQuery("SELECT call_number FROM book_copy WHERE status = out INTERSECT " +
+						"SELECT call_number FROM has_subject WHERE subject = " + varargs[0] + " ORDER BY call_number");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		else
+		{		
+			try {
+				Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs;
+				rs = stm.executeQuery("SELECT call_number FROM book_copy WHERE status = 'out' ORDER BY call_number");
+				Result r = new Result(rs);
+				session.loadResultPanel(r);
+				
+				// close the statement; 
+				// the ResultSet will also be closed
+				stm.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param varargs
+	 * 		Strings containing the year, and the number of results to query for, in that order.
+	 */
+	public void popularReport(String... varargs) {
+		
+		/*
+		 * Need to implement this correctly, however, as far as I know there is no way
+		 * of querying the database for how often a book has been borrowed. Also, what is the 
+		 * purpose of the borrowing table?
+		 */
+		try {
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			ResultSet rs;
+			rs = stm.executeQuery("SELECT call_number FROM book_copy WHERE status = 'out' ORDER BY call_number");
+			Result r = new Result(rs);
+			session.loadResultPanel(r);
+			
+			// close the statement; 
+			// the ResultSet will also be closed
+			stm.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+	}
 
 	/**
 	 * Check-out items borrowed by a borrower. To borrow items, borrowers provide their card number
@@ -68,6 +224,11 @@ public class DataBaseConnection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	
+	public JPanel getResultPanel() {
+		return null;
 	}
 	
 }
