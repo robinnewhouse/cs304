@@ -45,7 +45,7 @@ public class MainWindow extends JFrame implements SessionListener {
 		session = new Session(this);
 		session.addSessionListener(this);
 		container = new JPanel(new BorderLayout());
-		container.setPreferredSize(new Dimension(900,500));
+		container.setPreferredSize(new Dimension(950,600));
 		try {
 			image = ImageIO.read(new File("images/BookCase.jpg"));
 		} catch (IOException e) {

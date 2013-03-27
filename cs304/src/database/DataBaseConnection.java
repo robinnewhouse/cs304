@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import connection.Session;
@@ -91,6 +92,62 @@ public class DataBaseConnection {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	/**
+	 * Inserts a subject entry for a particular callNumber
+	 * 
+	 * @param varargs
+	 * 		The callNumber and subject associated with it, in that order
+	 */
+	public void insertSubject(String...varargs) {
+		
+		PreparedStatement ps;
+		
+		try {
+			ps = con.prepareStatement("INSERT INTO has_subject VALUES (?,?)");
+			ps.setString(1, varargs[0]);
+			ps.setString(2, varargs[1]);
+			int rowCount = ps.executeUpdate();
+			if(rowCount > 0)
+			{
+				JOptionPane.showMessageDialog(null,"Successfully added values to has_subject table");
+			}
+			
+			//Commit and close prepared statement
+			con.commit();
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Inserts an Author entry for a particular callNumber
+	 * 
+	 * @param varargs
+	 * 		The callNumber and Author name associated with it, in that order
+	 */
+	public void insertAuthors(String...varargs) {
+		
+		PreparedStatement ps;
+		
+		try {
+			ps = con.prepareStatement("INSERT INTO has_author VALUES (?,?)");
+			ps.setString(1, varargs[0]);
+			ps.setString(2, varargs[1]);
+			int rowCount = ps.executeUpdate();
+			if(rowCount > 0)
+			{
+				JOptionPane.showMessageDialog(null,"Successfully added values to has_author table");
+			}
+			
+			//Commit and close prepared statement
+			con.commit();
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -236,6 +293,10 @@ public class DataBaseConnection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public Session getSession() {
+		return session;
 	}
 	
 }
