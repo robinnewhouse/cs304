@@ -18,6 +18,14 @@ import connection.Session;
 
 import ui.Result;
 
+/**
+ * Class creates the connection to the Oracle SQL database and 
+ * is called for all queries, inserts and deletes in database.
+ * 
+ * @author Abe Friesen
+ *
+ */
+
 public class DataBaseConnection {	
 
 	Connection con;
@@ -28,6 +36,9 @@ public class DataBaseConnection {
 		connectToDB();
 	}
 
+	/**
+	 * Connects to the oracle database
+	 */
 	private void connectToDB() {
 
 		//Register the driver
@@ -39,9 +50,7 @@ public class DataBaseConnection {
 
 		//Get the Connection
 		try {
-
 			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
-
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -95,6 +104,8 @@ public class DataBaseConnection {
 	public void insertBorrower(String... varargs) {
 		
 		PreparedStatement ps;
+		
+		//Format date and phone fields
 		String strDate = varargs[7];
 		String phone = varargs[4].replaceAll("[\\.-]", "");
 		java.util.Date jDate = null;
@@ -119,15 +130,17 @@ public class DataBaseConnection {
 			ps.setLong(7,Long.parseLong(varargs[6]));
 			ps.setDate(8,sqlDate);
 			ps.setString(9,varargs[8]);
-			//Execute
+			
+			//Execute the statement
 			int rowCount = ps.executeUpdate();
 			System.out.println("Added " + rowCount + " rows to Borrower Table");
 			
+			//Commit changes
 			con.commit();
 			
+			//Close prepared statement
 			ps.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -164,8 +177,7 @@ public class DataBaseConnection {
 				Result r = new Result(rs);
 				session.loadResultPanel(r);
 				
-				// close the statement; 
-				// the ResultSet will also be closed
+				//Close statment
 				stm.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -174,6 +186,7 @@ public class DataBaseConnection {
 	}
 	
 	/**
+	 * Generates a report for the popular items borrowed in a given year
 	 * 
 	 * @param varargs
 	 * 		Strings containing the year, and the number of results to query for, in that order.
@@ -193,8 +206,7 @@ public class DataBaseConnection {
 			Result r = new Result(rs);
 			session.loadResultPanel(r);
 			
-			// close the statement; 
-			// the ResultSet will also be closed
+			//Close the statement
 			stm.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -224,11 +236,6 @@ public class DataBaseConnection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	
-	public JPanel getResultPanel() {
-		return null;
 	}
 	
 }

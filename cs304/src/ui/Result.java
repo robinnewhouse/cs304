@@ -1,14 +1,24 @@
 package ui;
 
-import java.awt.Dimension;
 import java.sql.ResultSet;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+/**
+ * Result class responsible for parsing the ResultSet returned from a 
+ * query and creating a Scrollable JPanel to display the results on
+ * the GUI.
+ * 
+ * ResultSet's can be dynamic in size, in both number of variables and
+ * the number of results
+ * 
+ * @author Abe Friesen
+ *
+ */
 public class Result extends JScrollPane {
 	
 	ResultSet rs;
@@ -21,13 +31,17 @@ public class Result extends JScrollPane {
 		createPanel();
 	}
 	
+	/**
+	 * Parses the ResultSet and creates a Table from the results
+	 * to pass to the GUI
+	 */
 	public void createPanel() {
 		try {
-			// get info on ResultSet
+			//Get info on ResultSet
 			ResultSetMetaData rsmd = rs.getMetaData();
-			// get number of columns
+			//Get number of columns
 			int numCols = rsmd.getColumnCount();
-			// get number of rows
+			//Get number of rows(results)
 			int numRows = 0;
 			try {
 			    rs.last();
@@ -44,7 +58,6 @@ public class Result extends JScrollPane {
 			for (int i = 0; i < numCols; i++)
 			{
 				columnHeader[i] = rsmd.getColumnName(i+1);
-				System.out.printf("%s\n",columnHeader[i]);
 			}
 			
 			//Populate 2d array with all the results
@@ -53,28 +66,24 @@ public class Result extends JScrollPane {
 			{
 				for(int i = 0; i < numCols; i++)
 				{
-					String blah = rs.getString(columnHeader[i].toLowerCase());
-					dataArray[k][i] = blah;
+					String columnTitle = rs.getString(columnHeader[i].toLowerCase());
+					dataArray[k][i] = columnTitle;
 				}
 				k++;
 			}
 			
-			for(int i = 0; i < numRows; i++)
-			{
-				for(int p = 0; p < numCols; p++)
-				{
-					System.out.printf("%s", dataArray[i][p]);
-				}
-				System.out.println("");
-			}
 		} catch (SQLException e) {}
 		
-		
+		//Creates the Scroll table with the data from the ResultSets
 		JTable table = new JTable(dataArray, columnHeader);
 		scroll = new JScrollPane(table);
-		//table.setFillsViewportHeight(true);	
 	}
 	
+	/**
+	 * Returns the scroll pane containing the table with the results
+	 * @return
+	 * 		JScrollPane with table containing results from ResultSet
+	 */
 	public JScrollPane getPanel() {
 		return scroll;
 	}
