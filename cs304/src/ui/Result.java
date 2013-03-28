@@ -42,8 +42,6 @@ public class Result extends JScrollPane {
 			ResultSetMetaData rsmd = rs.getMetaData();
 			//Get number of columns
 			int numCols = rsmd.getColumnCount();
-			if(numCols == 0)
-				JOptionPane.showMessageDialog(null, "No Results Found");
 			//Get number of rows(results)
 			int numRows = 0;
 			try {
@@ -54,32 +52,38 @@ public class Result extends JScrollPane {
 			catch(Exception ex) {
 				ex.printStackTrace();
 			}
-			dataArray = new String[numRows][numCols];
-			columnHeader = new String[numCols];
+			if(numRows == 0)
+				JOptionPane.showMessageDialog(null, "No Results Found");
+			else
+			{
+				dataArray = new String[numRows][numCols];
+				columnHeader = new String[numCols];
 
-			//Add column names to a column header
-			for (int i = 0; i < numCols; i++)
-			{
-				columnHeader[i] = rsmd.getColumnName(i+1);
-			}
-			
-			//Populate 2d array with all the results
-			int k = 0;
-			while(rs.next())
-			{
-				for(int i = 0; i < numCols; i++)
+				//Add column names to a column header
+				for (int i = 0; i < numCols; i++)
 				{
-					String columnTitle = rs.getString(columnHeader[i].toLowerCase());
-					dataArray[k][i] = columnTitle;
+					columnHeader[i] = rsmd.getColumnName(i+1);
 				}
-				k++;
+
+				//Populate 2d array with all the results
+				int k = 0;
+				while(rs.next())
+				{
+					for(int i = 0; i < numCols; i++)
+					{
+						String columnTitle = rs.getString(columnHeader[i].toLowerCase());
+						dataArray[k][i] = columnTitle;
+					}
+					k++;
+				}
+				
+				//Creates the Scroll table with the data from the ResultSets
+				JTable table = new JTable(dataArray, columnHeader);
+				scroll = new JScrollPane(table);
+				
 			}
-			
-		} catch (SQLException e) {}
-		
-		//Creates the Scroll table with the data from the ResultSets
-		JTable table = new JTable(dataArray, columnHeader);
-		scroll = new JScrollPane(table);
+			} catch (SQLException e) {}
+	
 	}
 	
 	/**

@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -59,6 +60,18 @@ public class ClerkInfo {
 		final JTextField fieldNumber = new JTextField(14);
 		final JTextField fieldExDate = new JTextField(14);
 		final JTextField fieldType = new JTextField(14);
+		
+		//Add fields to an array to check validate input
+		final JTextField[] fields = new JTextField[9];
+		fields[0] = fieldBid;
+		fields[1] = fieldPassword;
+		fields[2] = fieldName;
+		fields[3] = fieldAddress;
+		fields[4] = fieldPhone;
+		fields[5] = fieldEmail;
+		fields[6] = fieldNumber;
+		fields[7] = fieldExDate;
+		fields[8] = fieldType;
 
 		//Set up fields with labels
 		labelBid.setLabelFor(fieldBid);
@@ -104,9 +117,31 @@ public class ClerkInfo {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				db.insertBorrower(fieldBid.getText(), fieldPassword.getText(), fieldName.getText(),
-						fieldAddress.getText(), fieldPhone.getText(), fieldEmail.getText(),
-						fieldNumber.getText(), fieldExDate.getText(), fieldType.getText());
+				
+				boolean fieldsFilledOut = true;
+				//iterate through each field to make sure something is
+				//in each field
+				for(int i = 0; i < fields.length; i++)
+				{
+					if(fields[i].getText().isEmpty())
+					{
+						JOptionPane.showMessageDialog(null, "Please fill out all fields.");
+						fieldsFilledOut = false;
+						break;
+					}
+				}
+				if(fieldsFilledOut) 
+				{
+					db.insertBorrower(fieldBid.getText(), fieldPassword.getText(), fieldName.getText(),
+							fieldAddress.getText(), fieldPhone.getText(), fieldEmail.getText(),
+							fieldNumber.getText(), fieldExDate.getText(), fieldType.getText());
+					
+					//Empty all fields
+					for(int i = 0; i < fields.length; i++)
+					{
+						fields[i].setText("");
+					}
+				}
 			}
 		
 		});
