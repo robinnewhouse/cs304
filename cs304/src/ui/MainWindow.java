@@ -144,36 +144,40 @@ public class MainWindow extends JFrame implements SessionListener {
 	public void updateResultsPanel(final JScrollPane panel) {
 		if(currentResult != null)
 			lPane.remove(currentResult);
-		currentResult = panel;
-		currentResult.setBounds(200, 100,lPane.getWidth()/2, lPane.getHeight()/2);
-		lPane.add(currentResult, new Integer(1), 0);
-		lPane.revalidate();
-		lPane.addComponentListener(new ComponentListener() {
+		if(panel != null)
+		{
+			currentResult = panel;
+			currentResult.setBounds(200, 100,lPane.getWidth()/2, lPane.getHeight()/2);
+			lPane.add(currentResult, new Integer(1), 0);
+			lPane.revalidate();
+			lPane.addComponentListener(new ComponentListener() {
 
-			@Override
-			public void componentHidden(ComponentEvent e) {
-				// TODO Auto-generated method stub
+				@Override
+				public void componentHidden(ComponentEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void componentMoved(ComponentEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void componentResized(ComponentEvent e) {
+					currentResult.setBounds((lPane.getWidth()-currentResult.getWidth())/2, ((lPane.getHeight()-currentResult.getHeight())/2)-25,
+							lPane.getWidth()/2, lPane.getHeight()/2);
+				}
+
+				@Override
+				public void componentShown(ComponentEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
 				
-			}
+			});
+		}
 
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void componentResized(ComponentEvent e) {
-				currentResult.setBounds((lPane.getWidth()-currentResult.getWidth())/2, ((lPane.getHeight()-currentResult.getHeight())/2)-25,
-						lPane.getWidth()/2, lPane.getHeight()/2);
-			}
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
 	}
 }
