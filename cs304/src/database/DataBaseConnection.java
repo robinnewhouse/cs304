@@ -287,19 +287,37 @@ public class DataBaseConnection {
 	 * due day (which is giver to the borrower)
 	 */
 	public void checkOutItems (String cardnum, String[] callnums) {
+			
 		try {
-			Statement st = con.createStatement();
+			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			String sql = "SELECT name FROM borrower WHERE bid = " + cardnum;
 			ResultSet rs = st.executeQuery(sql);
-//			boolean b = rs.getBoolean(1);
-//			if (b) {
-//				System.out.println(b);
-//			} else {
-//				System.out.println("Cardnumber or call number list is invalid");
-//			}
+			Result showrs = new Result(rs);
+			session.loadResultPanel(showrs);
+			con.commit();
+			st.close();
+			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Checking out didn't work");
 			e.printStackTrace();
+		}
+		
+		System.out.println("Before inserting tuples in borrowing");
+		
+		Statement st2;
+		for (int i = 0; i < callnums.length; i++) {
+		try {
+			st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			String sql2 = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate)  VALUES (borid_counter.nextval, '"+cardnum+"','"+callnums[i]+"', 'co.1', '2013-03-28')";
+			ResultSet rs2 = st2.executeQuery(sql2);
+			Result showrs2 = new Result(rs2); //null pointer cause
+			session.loadResultPanel(showrs2);
+			con.commit();
+			st2.close();
+		} catch (SQLException e) {
+			System.out.println("Inserting tuple in borrowing didn't work during iteration ");
+			e.printStackTrace();
+		}
 		}
 	}
 	
