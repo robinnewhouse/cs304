@@ -103,17 +103,22 @@ public class LibrarianInfo {
 				}
 				if(fieldsFilledOut)
 				{
+					String subject = fieldSubject.getText();
+					String[] subjects = subject.split("[-, ]");
+					
 					if(fieldAddAuthors.getText().isEmpty())
 					{
 						db.insertBook(fieldCallNumber.getText(), fieldISBN.getText(), fieldTitle.getText(), 
 								fieldAuthor.getText(), fieldPublisher.getText(), fieldYear.getText());
-						db.insertSubject(fieldCallNumber.getText(),fieldSubject.getText());
+						db.insertSubject(subjects, fieldCallNumber.getText());
 					}
 					else {
+						String author = fieldAddAuthors.getText();
+						String[] authors = author.split(",");
 						db.insertBook(fieldCallNumber.getText(), fieldISBN.getText(), fieldTitle.getText(), 
 								fieldAuthor.getText(), fieldPublisher.getText(), fieldYear.getText());
-						db.insertSubject(fieldCallNumber.getText(),fieldSubject.getText());
-						db.insertAuthors(fieldCallNumber.getText(),fieldAddAuthors.getText());
+						db.insertSubject(subjects, fieldCallNumber.getText());
+						db.insertAuthors(authors,fieldCallNumber.getText());
 					}
 					//Empty all fields
 					for(int i = 0; i < fields.length; i++)

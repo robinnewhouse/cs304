@@ -68,7 +68,7 @@ public class DataBaseConnection {
 	public void insertBook(String... varargs) {
 		
 		PreparedStatement ps,ps2;
-		
+		int rowCount = 0;
 		try {
 			ps = con.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
 			ps.setString(1,varargs[0]);
@@ -78,15 +78,16 @@ public class DataBaseConnection {
 			ps.setString(5,varargs[4]);
 			ps.setInt(6,Integer.parseInt(varargs[5]));
 			//Execute the insert
-			ps.executeUpdate();
+			rowCount += ps.executeUpdate();
 			
 			ps2 = con.prepareStatement("INSERT INTO book_copy VALUES(?,?,?)");
 			ps2.setString(1, varargs[0]);
 			ps2.setString(2, varargs[0]);
 			ps2.setString(3, "in");
 			
-			ps2.executeUpdate();
-			
+			rowCount += ps2.executeUpdate();
+			if(rowCount > 0)
+				JOptionPane.showMessageDialog(null, "Added entry to Book table");
 			//Commit changes and close prepared statements
 			con.commit();
 			ps.close();
@@ -95,27 +96,31 @@ public class DataBaseConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	/**
 	 * Inserts a subject entry for a particular callNumber
 	 * 
-	 * @param varargs
-	 * 		The callNumber and subject associated with it, in that order
+	 * @param subjects
+	 * 		The subjects associated with the callNumber;
+	 * @param
+	 * 		The callNumber for the book;
 	 */
-	public void insertSubject(String...varargs) {
+	public void insertSubject(String[] subjects, String callNumber) {
 		
 		PreparedStatement ps;
-		
+		int rowCount = 0;
 		try {
 			ps = con.prepareStatement("INSERT INTO has_subject VALUES (?,?)");
-			ps.setString(1, varargs[0]);
-			ps.setString(2, varargs[1]);
-			int rowCount = ps.executeUpdate();
+			for(int i = 0; i < subjects.length; i++)
+			{
+				ps.setString(1, callNumber);
+				ps.setString(2, subjects[i]);
+				rowCount += ps.executeUpdate();
+			}
 			if(rowCount > 0)
 			{
-				JOptionPane.showMessageDialog(null,"Successfully added values to has_subject table");
+				JOptionPane.showMessageDialog(null,"Successfully added values to Subject table");
 			}
 			
 			//Commit and close prepared statement
@@ -132,18 +137,21 @@ public class DataBaseConnection {
 	 * @param varargs
 	 * 		The callNumber and Author name associated with it, in that order
 	 */
-	public void insertAuthors(String...varargs) {
+	public void insertAuthors(String[] authors, String callNumber) {
 		
 		PreparedStatement ps;
-		
+		int rowCount = 0;
 		try {
 			ps = con.prepareStatement("INSERT INTO has_author VALUES (?,?)");
-			ps.setString(1, varargs[0]);
-			ps.setString(2, varargs[1]);
-			int rowCount = ps.executeUpdate();
+			for(int i = 0; i < authors.length; i++)
+			{
+				ps.setString(1, callNumber);
+				ps.setString(2, authors[i]);
+				rowCount += ps.executeUpdate();
+			}
 			if(rowCount > 0)
 			{
-				JOptionPane.showMessageDialog(null,"Successfully added values to has_author table");
+				JOptionPane.showMessageDialog(null,"Successfully added values to Has_Author table");
 			}
 			
 			//Commit and close prepared statement
@@ -194,7 +202,8 @@ public class DataBaseConnection {
 			
 			//Execute the statement
 			int rowCount = ps.executeUpdate();
-			System.out.println("Added " + rowCount + " rows to Borrower Table");
+			if(rowCount > 0)
+				JOptionPane.showMessageDialog(null,"Added " + rowCount + " rows to Borrower Table");
 			
 			//Commit changes
 			con.commit();
