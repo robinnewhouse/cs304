@@ -67,7 +67,7 @@ public class DataBaseConnection {
 	 */
 	public void insertBook(String... varargs) {
 		
-		PreparedStatement ps;
+		PreparedStatement ps,ps2;
 		
 		try {
 			ps = con.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
@@ -78,17 +78,21 @@ public class DataBaseConnection {
 			ps.setString(5,varargs[4]);
 			ps.setInt(6,Integer.parseInt(varargs[5]));
 			//Execute the insert
-			int rowCount = ps.executeUpdate();
-			System.out.println("Added " + rowCount + " to Book Table");
+			ps.executeUpdate();
 			
-			//Commit changes
+			ps2 = con.prepareStatement("INSERT INTO book_copy VALUES(?,?,?)");
+			ps2.setString(1, varargs[0]);
+			ps2.setString(2, varargs[0]);
+			ps2.setString(3, "in");
+			
+			ps2.executeUpdate();
+			
+			//Commit changes and close prepared statements
 			con.commit();
-			
-			//Close prepared statement
 			ps.close();
+			ps2.close();
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -218,8 +222,11 @@ public class DataBaseConnection {
 				Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 						ResultSet.CONCUR_UPDATABLE);
 				ResultSet rs;
-				rs = stm.executeQuery("SELECT call_number FROM book_copy WHERE status = out INTERSECT " +
-						"SELECT call_number FROM has_subject WHERE subject = " + varargs[0] + " ORDER BY call_number");
+				rs = stm.executeQuery("SELECT call_number, outDate, inDate FROM borrowing " +
+						"WHERE call_number IN (SELECT call_number FROM book_copy WHERE status = 'out' INTERSECT " +
+						"SELECT call_number FROM has_subject WHERE subject = '" + varargs[0] +"') ORDER BY call_number");
+				Result r = new Result(rs);
+				session.loadResultPanel(r);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -230,7 +237,8 @@ public class DataBaseConnection {
 				Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 						ResultSet.CONCUR_UPDATABLE);
 				ResultSet rs;
-				rs = stm.executeQuery("SELECT call_number FROM book_copy WHERE status = 'out' ORDER BY call_number");
+				rs = stm.executeQuery("SELECT call_number, outDate, inDate FROM borrowing " +
+						"WHERE call_number IN (SELECT call_number FROM book_copy WHERE status = 'out') ORDER BY call_number");
 				Result r = new Result(rs);
 				session.loadResultPanel(r);
 				

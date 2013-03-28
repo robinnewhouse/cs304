@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
@@ -41,6 +42,8 @@ public class Result extends JScrollPane {
 			ResultSetMetaData rsmd = rs.getMetaData();
 			//Get number of columns
 			int numCols = rsmd.getColumnCount();
+			if(numCols == 0)
+				JOptionPane.showMessageDialog(null, "No Results Found");
 			//Get number of rows(results)
 			int numRows = 0;
 			try {
