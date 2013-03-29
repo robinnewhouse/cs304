@@ -51,7 +51,7 @@ public class DataBaseConnection {
 
 		//Get the Connection
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -327,6 +327,38 @@ public class DataBaseConnection {
 			System.out.println("Inserting tuple in borrowing didn't work during iteration ");
 			e.printStackTrace();
 		}
+		}
+	}
+	
+	public void searchForItem(String keyword, String author, String subject){
+		try {
+			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			String query = "SELECT b.call_number, b.isbn, b.title, b.main_author, b.publisher, b.year " +
+						   "FROM book b, has_subject s " +
+						   "WHERE ";
+			
+			if(!keyword.isEmpty())
+				query += "(lower(b.title) LIKE lower('%" + keyword + "%'))";
+			
+			if(!author.isEmpty() && !keyword.isEmpty())
+				query += "AND (lower(b.main_author) LIKE lower('%" + author + "%'))";
+			else if(!author.isEmpty() && keyword.isEmpty())
+				query += "(lower(b.main_author) LIKE lower('%" + author + "%'))";
+			
+			if(!subject.isEmpty() && (!keyword.isEmpty() || !author.isEmpty()))
+				query += "AND (b.call_number = s.call_number AND lower(s.subject) LIKE lower('%" + subject + "%'))";
+			else if (!subject.isEmpty() && (keyword.isEmpty() && author.isEmpty()))
+				query += "(b.call_number = s.call_number AND (lower(s.subject) LIKE lower('%" + subject + "%')))";
+			
+			System.out.println(query);
+			ResultSet result = st.executeQuery(query);
+			Result showrs = new Result(result);
+			session.loadResultPanel(showrs);
+			con.commit();
+			st.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

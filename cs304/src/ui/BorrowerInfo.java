@@ -7,9 +7,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -30,6 +33,7 @@ public class BorrowerInfo {
 	private Insets bottom = new Insets(0,0,20,0);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 20);
 	private DataBaseConnection db;
+	private JTextField[] fields;
 
 	public BorrowerInfo(DataBaseConnection db) {
 		this.db = db;
@@ -48,9 +52,14 @@ public class BorrowerInfo {
 		Label labelSubject = new Label("Subject: ");
 
 		//Fields
-		JTextField fieldTitle = new JTextField(15);
-		JTextField fieldAuthor = new JTextField(15);
-		JTextField fieldSubject = new JTextField(15);
+		final JTextField fieldTitle = new JTextField(15);
+		final JTextField fieldAuthor = new JTextField(15);
+		final JTextField fieldSubject = new JTextField(15);
+		
+		fields = new JTextField[3];
+		fields[0] = fieldTitle;
+		fields[1] = fieldAuthor;
+		fields[2] = fieldSubject;
 
 		//Set up fields with labels
 		labelTitle.setLabelFor(fieldTitle);
@@ -59,6 +68,30 @@ public class BorrowerInfo {
 
 		//Search Button
 		button = new JButton("Search");
+		button.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				boolean fieldsFilledOut = false;
+				
+				for(JTextField f : fields){
+					if(!f.getText().isEmpty()){
+						System.out.println("Field filled");
+						fieldsFilledOut = true;
+						break;
+					}		
+				}
+				
+				if(fieldsFilledOut == false)
+					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
+				else{
+					System.out.println("Keyword: " + fieldTitle.getText() + " Author: " + fieldAuthor.getText() + " Subject: " + fieldSubject.getText());
+					db.searchForItem(fieldTitle.getText(), fieldAuthor.getText(), fieldSubject.getText());
+				}
+				
+				
+			}
+		});
 
 		finalPanel = new JPanel();
 		finalPanel.setLayout(new GridBagLayout());
