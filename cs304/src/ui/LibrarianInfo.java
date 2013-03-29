@@ -300,11 +300,14 @@ public class LibrarianInfo {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(fieldYear.getText().trim().isEmpty() || fieldN.getText().trim().isEmpty())
-					System.out.println("Error, please fill in both boxes");
+					JOptionPane.showMessageDialog(null,"Please fill in both boxes");
 				else
+				{
 					db.popularReport(fieldYear.getText(), fieldN.getText());
+					fieldYear.setText("");
+					fieldN.setText("");
+				}
 			}
-
 		});
 
 		//finalPanel

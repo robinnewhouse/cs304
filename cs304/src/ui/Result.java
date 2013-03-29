@@ -42,6 +42,10 @@ public class Result extends JScrollPane {
 			ResultSetMetaData rsmd = rs.getMetaData();
 			//Get number of columns
 			int numCols = rsmd.getColumnCount();
+			for (int i = 0; i < numCols; i++)
+			{
+				System.out.println(rsmd.getColumnName(i+1));
+			}
 			//Get number of rows(results)
 			int numRows = 0;
 			try {

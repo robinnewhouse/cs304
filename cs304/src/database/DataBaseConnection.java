@@ -265,18 +265,22 @@ public class DataBaseConnection {
 	 * @param varargs
 	 * 		Strings containing the year, and the number of results to query for, in that order.
 	 */
-	public void popularReport(String... varargs) {
+	public void popularReport(String year, String n) {
 		
 		/*
-		 * Need to implement this correctly, however, as far as I know there is no way
-		 * of querying the database for how often a book has been borrowed. Also, what is the 
-		 * purpose of the borrowing table?
+		 * This is a weird bug. Executing the following query in the terminal database
+		 * has the correct results, but for some reason while doing it from here
+		 * it doesn't work. The culprit is the 'where outDate like '%" + year + "-%'
+		 * part. If I take that out, the query returns results.
 		 */
 		try {
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
-			rs = stm.executeQuery("SELECT call_number FROM book_copy WHERE status = 'out' ORDER BY call_number");
+			
+			rs = stm.executeQuery("select * from (select call_number, count(call_number) from borrowing " +
+					"where outDate like '%" + year + "-%' group by call_number) where rownum <= " +
+					n);
 			Result r = new Result(rs);
 			session.loadResultPanel(r);
 			
@@ -296,7 +300,7 @@ public class DataBaseConnection {
 	 * due day (which is giver to the borrower)
 	 */
 	public void checkOutItems (String cardnum, String[] callnums) {
-			
+		
 		try {
 			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			String sql = "SELECT name FROM borrower WHERE bid = " + cardnum;
@@ -316,11 +320,13 @@ public class DataBaseConnection {
 		Statement st2;
 		for (int i = 0; i < callnums.length; i++) {
 		try {
+			con.rollback();
+			System.exit(0);
 			st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			String sql2 = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate)  VALUES (borid_counter.nextval, '"+cardnum+"','"+callnums[i]+"', 'co.1', '2013-03-28')";
-			ResultSet rs2 = st2.executeQuery(sql2);
-			Result showrs2 = new Result(rs2); //null pointer cause
-			session.loadResultPanel(showrs2);
+			String sql2 = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate) VALUES (borid_counter.nextval, '"+cardnum+"','"+callnums[i]+"', 'co.2', '2013-03-28')";
+			int rs2 = st2.executeUpdate(sql2);
+			if(rs2 > 0)
+				JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to table");
 			con.commit();
 			st2.close();
 		} catch (SQLException e) {
