@@ -1,5 +1,6 @@
 package ui;
 
+import java.awt.Dimension;
 import java.sql.ResultSet;
 
 import java.sql.ResultSetMetaData;
@@ -84,7 +85,6 @@ public class Result extends JScrollPane {
 				//Creates the Scroll table with the data from the ResultSets
 				JTable table = new JTable(dataArray, columnHeader);
 				scroll = new JScrollPane(table);
-				
 			}
 			} catch (SQLException e) {}
 	

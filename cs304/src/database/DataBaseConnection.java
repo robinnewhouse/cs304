@@ -10,7 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -66,11 +68,11 @@ public class DataBaseConnection {
 	 * 		MainAuthor, Publisher and year of a book, in that order. 
 	 */
 	public void insertBook(String... varargs) {
-		
-		PreparedStatement ps,ps2;
+		PreparedStatement ps;
 		int rowCount = 0;
 		try {
-			ps = con.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
+			String query = "INSERT INTO book VALUES (?,?,?,?,?,?)";
+			ps = con.prepareStatement(query);
 			ps.setString(1,varargs[0]);
 			ps.setString(2,varargs[1]);
 			ps.setString(3,varargs[2]);
@@ -80,20 +82,34 @@ public class DataBaseConnection {
 			//Execute the insert
 			rowCount += ps.executeUpdate();
 			
-			ps2 = con.prepareStatement("INSERT INTO book_copy VALUES(?,?,?)");
-			ps2.setString(1, varargs[0]);
-			ps2.setString(2, varargs[0]);
-			ps2.setString(3, "in");
-			
-			rowCount += ps2.executeUpdate();
 			if(rowCount > 0)
 				JOptionPane.showMessageDialog(null, "Added entry to Book table");
 			//Commit changes and close prepared statements
 			con.commit();
 			ps.close();
-			ps2.close();
 			
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void insertCopy(String callNumber){
+		System.out.println("CallNumber :" + callNumber);
+		PreparedStatement ps;
+		int rowCount = 0;
+		try{
+			ps = con.prepareStatement("INSERT INTO book_copy (copy_no, call_number, status)" +
+									  " VALUES(copy_number.nextval, ?, ?)");
+			ps.setString(1, callNumber);
+			ps.setString(2, "in");
+			rowCount += ps.executeUpdate();
+			
+			if(rowCount > 0)
+				JOptionPane.showMessageDialog(null, "Added entry to Book_Copy table");
+			//Commit changes and close prepared statements
+			con.commit();
+			ps.close();
+		} catch (SQLException e){
 			e.printStackTrace();
 		}
 	}
@@ -339,9 +355,12 @@ public class DataBaseConnection {
 	public void searchForItem(String keyword, String author, String subject){
 		try {
 			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			String query = "SELECT b.call_number, b.isbn, b.title, b.main_author, b.publisher, b.year " +
-						   "FROM book b, has_subject s " +
-						   "WHERE ";
+			String query = "SELECT b.call_number, b.isbn, b.title, b.main_author, b.publisher, b.year, c.status " +
+						   "FROM book b, book_copy c " +
+						   "WHERE b.call_number IN " +
+						   "	(SELECT b.call_number " +
+						   "	 FROM book b, has_subject s " +
+						   "	 WHERE ";
 			
 			if(!keyword.isEmpty())
 				query += "(lower(b.title) LIKE lower('%" + keyword + "%'))";
@@ -356,6 +375,7 @@ public class DataBaseConnection {
 			else if (!subject.isEmpty() && (keyword.isEmpty() && author.isEmpty()))
 				query += "(b.call_number = s.call_number AND (lower(s.subject) LIKE lower('%" + subject + "%')))";
 			
+			query += ")";
 			System.out.println(query);
 			ResultSet result = st.executeQuery(query);
 			Result showrs = new Result(result);
@@ -363,7 +383,6 @@ public class DataBaseConnection {
 			con.commit();
 			st.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

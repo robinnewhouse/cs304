@@ -59,6 +59,7 @@ public class MainWindow extends JFrame implements SessionListener {
 		lPane = new JLayeredPane();
 		JLabel imagePanel = new JLabel();
 		imagePanel.setIcon(new ImageIcon(image));
+		imagePanel.setBounds(0, 0, lPane.getWidth(), lPane.getHeight());
 		lPane.setBorder(BorderFactory.createLineBorder(Color.black, 2));
 		lPane.setBounds(0, 0, 1200, 820);
 		resultsContainer = new JPanel(new BorderLayout());
@@ -147,7 +148,7 @@ public class MainWindow extends JFrame implements SessionListener {
 		if(panel != null)
 		{
 			currentResult = panel;
-			currentResult.setBounds(200, 100,lPane.getWidth()/2, lPane.getHeight()/2);
+			currentResult.setBounds(50, 50, lPane.getWidth()-100, lPane.getHeight()-100);
 			lPane.add(currentResult, new Integer(1), 0);
 			lPane.revalidate();
 			lPane.addComponentListener(new ComponentListener() {
@@ -166,8 +167,7 @@ public class MainWindow extends JFrame implements SessionListener {
 
 				@Override
 				public void componentResized(ComponentEvent e) {
-					currentResult.setBounds((lPane.getWidth()-currentResult.getWidth())/2, ((lPane.getHeight()-currentResult.getHeight())/2)-25,
-							lPane.getWidth()/2, lPane.getHeight()/2);
+					currentResult.setBounds(50, 50, lPane.getWidth()-100, lPane.getHeight()-100);
 				}
 
 				@Override

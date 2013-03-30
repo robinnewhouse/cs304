@@ -51,6 +51,7 @@ public class LibrarianInfo {
 		Label labelYear = new Label("Year:");
 		Label labelSubject = new Label("Subject: ");
 		Label labelAddAuthors = new Label("Other Authors: ");
+		Label labelCopies = new Label("Copies: ");
 
 		//Fields
 		final JTextField fieldCallNumber = new JTextField(14);
@@ -61,9 +62,10 @@ public class LibrarianInfo {
 		final JTextField fieldYear = new JTextField(14);
 		final JTextField fieldSubject = new JTextField(14);
 		final JTextField fieldAddAuthors = new JTextField(14);
+		final JTextField fieldCopies = new JTextField(14);
 		
 		//Add fields to an array to check validate input
-		fields = new JTextField[7];
+		fields = new JTextField[8];
 		fields[0] = fieldCallNumber;
 		fields[1] = fieldISBN;
 		fields[2] = fieldTitle;
@@ -71,6 +73,7 @@ public class LibrarianInfo {
 		fields[4] = fieldPublisher;
 		fields[5] = fieldYear;
 		fields[6] = fieldSubject;
+		fields[7] = fieldCopies;
 
 		//Set up labels with fields
 		labelCallNumber.setLabelFor(fieldCallNumber);
@@ -81,6 +84,7 @@ public class LibrarianInfo {
 		labelYear.setLabelFor(fieldYear);
 		labelSubject.setLabelFor(fieldSubject);
 		labelAddAuthors.setLabelFor(fieldAddAuthors);
+		labelCopies.setLabelFor(fieldCopies);
 
 		//Add Book Button
 		button = new JButton("Add Book");
@@ -104,12 +108,16 @@ public class LibrarianInfo {
 				if(fieldsFilledOut)
 				{
 					String subject = fieldSubject.getText();
-					String[] subjects = subject.split("[-, ]");
+					String[] subjects = subject.split("[-,]");
+					int copies = Integer.parseInt(fieldCopies.getText().trim());
 					
 					if(fieldAddAuthors.getText().isEmpty())
 					{
 						db.insertBook(fieldCallNumber.getText(), fieldISBN.getText(), fieldTitle.getText(), 
 								fieldAuthor.getText(), fieldPublisher.getText(), fieldYear.getText());
+						for(int i=0; i<copies; i++){
+							db.insertCopy(fieldCallNumber.getText());
+						}
 						db.insertSubject(subjects, fieldCallNumber.getText());
 					}
 					else {
@@ -117,6 +125,9 @@ public class LibrarianInfo {
 						String[] authors = author.split(",");
 						db.insertBook(fieldCallNumber.getText(), fieldISBN.getText(), fieldTitle.getText(), 
 								fieldAuthor.getText(), fieldPublisher.getText(), fieldYear.getText());
+						for(int i=0; i<copies; i++){
+							db.insertCopy(fieldCallNumber.getText());
+						}
 						db.insertSubject(subjects, fieldCallNumber.getText());
 						db.insertAuthors(authors,fieldCallNumber.getText());
 					}
@@ -208,6 +219,14 @@ public class LibrarianInfo {
 		finalPanel.add(fieldAddAuthors, c);
 		c.gridx = 0;
 		c.gridy = 9;
+		c.insets = bottom;
+		finalPanel.add(labelCopies, c);
+		c.gridx = 1;
+		c.gridy = 9;
+		c.insets = bottom;
+		finalPanel.add(fieldCopies, c);
+		c.gridx = 1;
+		c.gridy = 10;
 		c.gridwidth = 2;
 		finalPanel.add(button, c);
 		finalPanel.setBackground(panelBackColor);

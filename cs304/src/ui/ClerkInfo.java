@@ -173,7 +173,7 @@ public class ClerkInfo {
 		txt.setPreferredSize(new Dimension(250,110));
 
 		//Labels
-		Label labelNumber = new Label("SIN or ST#: ");
+		Label labelNumber = new Label("BID: ");
 		Label labelCallNumbers = new Label("CallNumbers: ");
 
 		//Fields
