@@ -110,7 +110,7 @@ public class DataBaseConnection {
 			ps = con.prepareStatement("INSERT INTO book_copy (call_number, copy_no, status)" +
 									  " VALUES(?, ?, ?)");
 			ps.setString(1, callNumber);
-			ps.setString(2, String.valueOf(copyNumber++));
+			ps.setString(2, "c" + String.valueOf(copyNumber++));
 			ps.setString(3, "in");
 			rowCount += ps.executeUpdate();
 			
@@ -201,8 +201,8 @@ public class DataBaseConnection {
 		PreparedStatement ps;
 		
 		//Format date and phone fields
-		String strDate = varargs[7];
-		String phone = varargs[4].replaceAll("[\\.-]", "");
+		String strDate = varargs[6];
+		String phone = varargs[3].replaceAll("[\\.-]", "");
 		java.util.Date jDate = null;
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		try {
@@ -215,21 +215,31 @@ public class DataBaseConnection {
 		Date sqlDate = new Date(calendar.getTimeInMillis());
 				
 		try {
-			ps = con.prepareStatement("INSERT INTO borrower VALUES (?,?,?,?,?,?,?,?,?)");
+			ps = con.prepareStatement("INSERT INTO borrower (bid, name, password, address, phone, " +
+											"emailAddress, sinOrStNo, expiryDate, type) " +
+									  "VALUES (bid.nextval,?,?,?,?,?,?,?,?)");
 			ps.setString(1,varargs[0]);
 			ps.setString(2,varargs[1]);
 			ps.setString(3,varargs[2]);
-			ps.setString(4,varargs[3]);
-			ps.setLong(5,Long.parseLong(phone));
-			ps.setString(6,varargs[5]);
-			ps.setLong(7,Long.parseLong(varargs[6]));
-			ps.setDate(8,sqlDate);
-			ps.setString(9,varargs[8]);
+			ps.setLong(4,Long.parseLong(phone));
+			ps.setString(5,varargs[4]);
+			ps.setLong(6,Long.parseLong(varargs[5]));
+			ps.setDate(7,sqlDate);
+			ps.setString(8,varargs[7]);
 			
 			//Execute the statement
 			int rowCount = ps.executeUpdate();
-			if(rowCount > 0)
+			if(rowCount > 0){
 				JOptionPane.showMessageDialog(null,"Added " + rowCount + " rows to Borrower Table");
+			}
+			
+			ps = con.prepareStatement("SELECT bid.currval FROM dual");
+			ResultSet result = ps.executeQuery();
+			result.next();
+			int bid = 0;
+			bid = result.getInt(1);
+			if(bid != 0)
+				JOptionPane.showMessageDialog(null,"Borrower's BID is: " + bid);
 			
 			//Commit changes
 			con.commit();
@@ -326,39 +336,75 @@ public class DataBaseConnection {
 	 * due day (which is giver to the borrower)
 	 */
 	public void checkOutItems (String cardnum, String[] callnums) {
+		int bid = Integer.parseInt(cardnum);
 		
-		try {
-			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			String sql = "SELECT name FROM borrower WHERE bid = " + cardnum;
-			ResultSet rs = st.executeQuery(sql);
-			Result showrs = new Result(rs);
-			session.loadResultPanel(showrs);
-			con.commit();
-			st.close();
-			
-		} catch (SQLException e) {
-			System.out.println("Checking out didn't work");
-			e.printStackTrace();
-		}
-		
-		System.out.println("Before inserting tuples in borrowing");
-		
-		Statement st2;
+		PreparedStatement ps;
 		for (int i = 0; i < callnums.length; i++) {
-		try {
-			con.rollback();
-			System.exit(0);
-			st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			String sql2 = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate) VALUES (borid_counter.nextval, '"+cardnum+"','"+callnums[i]+"', 'co.2', '2013-03-28')";
-			int rs2 = st2.executeUpdate(sql2);
-			if(rs2 > 0)
-				JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to table");
-			con.commit();
-			st2.close();
-		} catch (SQLException e) {
-			System.out.println("Inserting tuple in borrowing didn't work during iteration ");
-			e.printStackTrace();
-		}
+			try {
+				boolean copyIn = true;
+				// Get copy number of an available copy
+				String query = "SELECT copy_no FROM book_copy WHERE status = 'in'";
+				ps = con.prepareStatement(query);
+				ResultSet result = ps.executeQuery(query);
+				result.next();
+				String copy = result.getString(1);
+				if(copy.isEmpty()){ // If all copies out
+					JOptionPane.showMessageDialog(null, "No copies are available");
+					copyIn = false;
+				}
+					
+				if(copyIn = true){
+					// Get borrower's loan time limit
+					query = "SELECT type FROM borrower WHERE bid = " + bid;
+					ps = con.prepareStatement(query);
+					result = ps.executeQuery();
+					result.next();
+					String type = result.getString(1);
+					if(type.toLowerCase().equals("student")){
+						
+					}
+					else if(type.toLowerCase().equals("faculty")){
+						
+					}
+					else if(type.toLowerCase().equals("staff")){
+						
+					}
+					
+					// Create due date according to borrower type
+					String strDate = "14/ 05/13";
+					java.util.Date jDate = null;
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+					try {
+						jDate = sdf.parse(strDate);
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(jDate);
+					Date sqlDate = new Date(calendar.getTimeInMillis());
+					
+					// Checkout copy if there is an available copy
+					query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate) VALUES (borid_counter.nextval,?,?,?,?)";
+					ps = con.prepareStatement(query);
+					ps.setInt(1, bid);
+					ps.setString(2, callnums[i]);
+					ps.setString(3, copy);
+					ps.setDate(4, sqlDate);
+					int rs2 = ps.executeUpdate();
+					if(rs2 > 0)
+						JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to table");
+					
+					// Update book copy status to out
+					query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
+					ps.execute(query);
+				}
+				
+				con.commit();
+				ps.close();
+			} catch (SQLException e) {
+				System.out.println("Inserting tuple in borrowing didn't work during iteration ");
+				e.printStackTrace();
+			}
 		}
 	}
 	

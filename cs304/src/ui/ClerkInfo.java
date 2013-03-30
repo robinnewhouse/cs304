@@ -40,9 +40,8 @@ public class ClerkInfo {
 	public JPanel addBorrowerPanel(){
 
 		//Labels
-		Label labelBid = new Label("Bid: ");
-		Label labelPassword = new Label("Password: ");
 		Label labelName = new Label("Name: ");
+		Label labelPassword = new Label("Password: ");
 		Label labelAddress = new Label("Address: ");
 		Label labelPhone = new Label("Phone: ");
 		Label labelEmail = new Label("Email: ");
@@ -51,9 +50,8 @@ public class ClerkInfo {
 		Label labelType = new Label("Type: ");
 
 		//Fields
-		final JTextField fieldBid = new JTextField(14);
-		final JTextField fieldPassword = new JTextField(14);
 		final JTextField fieldName = new JTextField(14);
+		final JTextField fieldPassword = new JTextField(14);
 		final JTextField fieldAddress = new JTextField(14);
 		final JTextField fieldPhone = new JTextField(14);
 		final JTextField fieldEmail = new JTextField(14);
@@ -62,21 +60,19 @@ public class ClerkInfo {
 		final JTextField fieldType = new JTextField(14);
 		
 		//Add fields to an array to check validate input
-		final JTextField[] fields = new JTextField[9];
-		fields[0] = fieldBid;
+		final JTextField[] fields = new JTextField[8];
+		fields[0] = fieldName;
 		fields[1] = fieldPassword;
-		fields[2] = fieldName;
-		fields[3] = fieldAddress;
-		fields[4] = fieldPhone;
-		fields[5] = fieldEmail;
-		fields[6] = fieldNumber;
-		fields[7] = fieldExDate;
-		fields[8] = fieldType;
+		fields[2] = fieldAddress;
+		fields[3] = fieldPhone;
+		fields[4] = fieldEmail;
+		fields[5] = fieldNumber;
+		fields[6] = fieldExDate;
+		fields[7] = fieldType;
 
 		//Set up fields with labels
-		labelBid.setLabelFor(fieldBid);
-		labelPassword.setLabelFor(fieldPassword);
 		labelName.setLabelFor(fieldName);
+		labelPassword.setLabelFor(fieldPassword);
 		labelAddress.setLabelFor(fieldAddress);
 		labelPhone.setLabelFor(fieldPhone);
 		labelEmail.setLabelFor(fieldEmail);
@@ -86,9 +82,8 @@ public class ClerkInfo {
 
 		//Label Panel
 		labelPanel = new JPanel(new GridLayout(9,1,0,25));
-		labelPanel.add(labelBid);
-		labelPanel.add(labelPassword);
 		labelPanel.add(labelName);
+		labelPanel.add(labelPassword);
 		labelPanel.add(labelAddress);
 		labelPanel.add(labelPhone);
 		labelPanel.add(labelEmail);
@@ -99,9 +94,8 @@ public class ClerkInfo {
 
 		//Field Panel
 		fieldPanel = new JPanel(new GridLayout(9,1,0,16));
-		fieldPanel.add(fieldBid);
-		fieldPanel.add(fieldPassword);
 		fieldPanel.add(fieldName);
+		fieldPanel.add(fieldPassword);
 		fieldPanel.add(fieldAddress);
 		fieldPanel.add(fieldPhone);
 		fieldPanel.add(fieldEmail);
@@ -132,9 +126,9 @@ public class ClerkInfo {
 				}
 				if(fieldsFilledOut) 
 				{
-					db.insertBorrower(fieldBid.getText(), fieldPassword.getText(), fieldName.getText(),
-							fieldAddress.getText(), fieldPhone.getText(), fieldEmail.getText(),
-							fieldNumber.getText(), fieldExDate.getText(), fieldType.getText());
+					db.insertBorrower(fieldName.getText(), fieldPassword.getText(), fieldAddress.getText(), 
+							fieldPhone.getText(), fieldEmail.getText(),fieldNumber.getText(), fieldExDate.getText(), 
+							fieldType.getText());
 					
 					//Empty all fields
 					for(int i = 0; i < fields.length; i++)
@@ -194,7 +188,7 @@ public class ClerkInfo {
 				String callnum = fieldCallNumbers.getText();
 				String[] callnums = callnum.split(" ");
 				for (int i = 0; i < callnums.length; i++) {
-				System.out.println(callnums[i]);
+					System.out.println(callnums[i]);
 				}
 				db.checkOutItems(fieldNumber.getText(), callnums);
 			}
