@@ -1,5 +1,6 @@
 package database;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -93,15 +94,24 @@ public class DataBaseConnection {
 		}
 	}
 	
-	public void insertCopy(String callNumber){
-		System.out.println("CallNumber :" + callNumber);
-		PreparedStatement ps;
-		int rowCount = 0;
+	public void insertCopy(String callNumber){	
 		try{
-			ps = con.prepareStatement("INSERT INTO book_copy (copy_no, call_number, status)" +
-									  " VALUES(copy_number.nextval, ?, ?)");
+			PreparedStatement ps;
+			ResultSet result;
+			int copyNumber = 1;
+			int rowCount = 0;
+			String query = "SELECT * FROM book_copy WHERE call_number LIKE '%" + callNumber + "%'";
+			ps = con.prepareStatement(query);
+			result = ps.executeQuery();
+			
+			while(result.next())
+				copyNumber++;
+			
+			ps = con.prepareStatement("INSERT INTO book_copy (call_number, copy_no, status)" +
+									  " VALUES(?, ?, ?)");
 			ps.setString(1, callNumber);
-			ps.setString(2, "in");
+			ps.setString(2, String.valueOf(copyNumber++));
+			ps.setString(3, "in");
 			rowCount += ps.executeUpdate();
 			
 			if(rowCount > 0)
