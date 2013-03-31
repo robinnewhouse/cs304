@@ -39,6 +39,19 @@ public class UserToolbar extends JToolBar{
 		JButton button;
 
 		//Toolbar buttons
+		button = new JButton("Login");
+		button.setForeground(Color.black);
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				main.getSession().loadEditPanel("Login");
+			}
+
+		});
+		toolbar.add(button);
+		
+		//Toolbar buttons
 		button = new JButton("Search");
 		button.setForeground(Color.black);
 		button.addActionListener(new ActionListener() {
