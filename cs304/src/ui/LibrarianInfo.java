@@ -107,7 +107,7 @@ public class LibrarianInfo {
 				if(fieldsFilledOut)
 				{
 					String subject = fieldSubject.getText();
-					String[] subjects = subject.split("[-,]");
+					String[] subjects = subject.split(", ");
 					int copies = Integer.parseInt(fieldCopies.getText().trim());
 					
 					if(fieldAddAuthors.getText().isEmpty())
@@ -121,7 +121,7 @@ public class LibrarianInfo {
 					}
 					else {
 						String author = fieldAddAuthors.getText();
-						String[] authors = author.split(",");
+						String[] authors = author.split(", ");
 						db.insertBook(fieldCallNumber.getText(), fieldISBN.getText(), fieldTitle.getText(), 
 								fieldAuthor.getText(), fieldPublisher.getText(), fieldYear.getText());
 						for(int i=0; i<copies; i++){
@@ -300,7 +300,7 @@ public class LibrarianInfo {
 		txt.setPreferredSize(new Dimension(250, 90));
 
 		//Label
-		Label labelYear = new Label("Year: ");
+		Label labelYear = new Label("Year:      20");
 		Label labelN = new Label("How many: ");
 
 		//Field

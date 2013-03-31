@@ -32,6 +32,7 @@ public class ClerkInfo {
 	private Color panelBackColor = new Color(59,67,103);
 	private static Font font = new Font("Times New Roman", Font.BOLD, 16);
 	private DataBaseConnection db;
+	private JTextField[] fields;
 	
 	public ClerkInfo(DataBaseConnection db) {
 		this.db = db;
@@ -173,6 +174,10 @@ public class ClerkInfo {
 		//Fields
 		final JTextField fieldNumber = new JTextField(15);
 		final JTextField fieldCallNumbers = new JTextField(15);
+		
+		fields = new JTextField[2];
+		fields[0] = fieldNumber;
+		fields[1] = fieldCallNumbers;
 
 		//Set up labels with fields
 		labelNumber.setLabelFor(fieldNumber);
@@ -186,11 +191,12 @@ public class ClerkInfo {
 			public void actionPerformed(ActionEvent e) {
 				//pass card number and call number values
 				String callnum = fieldCallNumbers.getText();
-				String[] callnums = callnum.split(" ");
-				for (int i = 0; i < callnums.length; i++) {
-					System.out.println(callnums[i]);
-				}
+				String[] callnums = callnum.split(", ");
 				db.checkOutItems(fieldNumber.getText(), callnums);
+				
+				//Empty all fields
+				for(int i = 0; i < fields.length; i++)
+					fields[i].setText("");
 			}
 		});
 
