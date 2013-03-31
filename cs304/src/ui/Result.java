@@ -108,8 +108,11 @@ public class Result extends JScrollPane {
 									} catch (ParseException e) {
 										e.printStackTrace();
 									}
-									if(date.after(new Date()))
-										c.setBackground(Color.LIGHT_GRAY);
+									if(date.before(new Date()))
+									{
+										c.setBackground(Color.blue);
+										c.setForeground(Color.white);
+									}	
 								}
 								return c;
 							}

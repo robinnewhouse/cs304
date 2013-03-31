@@ -145,10 +145,6 @@ public class DataBaseConnection {
 				ps.setString(2, subjects[i]);
 				rowCount += ps.executeUpdate();
 			}
-			if(rowCount > 0)
-			{
-				JOptionPane.showMessageDialog(null,"Successfully added values to Subject table");
-			}
 
 			//Commit and close prepared statement
 			con.commit();
@@ -165,7 +161,7 @@ public class DataBaseConnection {
 	 * 		The callNumber and Author name associated with it, in that order
 	 */
 	public void insertAuthors(String[] authors, String callNumber) {
-
+		
 		PreparedStatement ps;
 		int rowCount = 0;
 		try {
@@ -178,7 +174,7 @@ public class DataBaseConnection {
 			}
 			if(rowCount > 0)
 			{
-				JOptionPane.showMessageDialog(null,"Successfully added values to Has_Author table");
+				JOptionPane.showMessageDialog(null,"Successfully added " + rowCount + "values to Has_Author table");
 			}
 
 			//Commit and close prepared statement
@@ -351,7 +347,7 @@ public class DataBaseConnection {
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
 
-			rs = stm.executeQuery("select * from (select call_number, count(call_number) from borrowing " +
+			rs = stm.executeQuery("select * from (select call_number, count(call_number) as times_rented from borrowing " +
 					"where outDate like '%" + year + "%' group by call_number) where rownum <= " +
 					n);
 			Result r = new Result(rs);
@@ -404,63 +400,59 @@ public class DataBaseConnection {
 					if(result.next()){
 						type = result.getString(1);
 					}
+					if(!type.isEmpty())
+					{
 
-					// Get borrower's loan time limit
-					int weeks = 0;
-
-					/* This doesn't work for some reason.  Have to use switch/if instead */
-//					query = "SELECT book_time_limit FROM borrower_type WHERE type = '" + type + "'";
-//					System.out.println(query);
-//					ps = con.prepareStatement(query);
-//					result = ps.executeQuery();
-//					if(result.next()){
-//						weeks = result.getInt(1);
-//						System.out.println("Weeks: " + weeks);
-//					}
-//					else
-//						System.out.println("No results");
-					if(type.contentEquals("student"))
-						weeks = 2;
-					else if (type.contentEquals("faculty"))
-						weeks = 12;
-					else if (type.contentEquals("staff"))
-						weeks = 6;
-					System.out.println(weeks);
-
-					// Create checkout date and due date according to borrower type
-					Calendar calendar = Calendar.getInstance();
-					long jDate = calendar.getTimeInMillis();
-					Date outDate = new Date(jDate);
-					calendar.add(Calendar.DAY_OF_YEAR, weeks*7);
-					jDate = calendar.getTimeInMillis();
-					Date dueDate = new Date(jDate);
-
-					System.out.println("Due Date: " + dueDate);
-					
-					// Checkout copy if there is an available copy
-					query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate,inDate) VALUES (borid_counter.nextval,?,?,?,?,?)";
-					ps = con.prepareStatement(query);
-					ps.setInt(1, bid);
-					ps.setString(2, callnums[i]);
-					ps.setString(3, copy);
-					ps.setDate(4, outDate);
-					ps.setDate(5, dueDate);
-					int rs2 = ps.executeUpdate();
-					if(rs2 > 0)
-						JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Borrowing table");
-					
-					if(i == 0){ // For first book
-						query = "SELECT borid_counter.currval FROM dual";
+						// Get borrower's loan time limit
+						query = "SELECT book_time_limit FROM borrower_type WHERE type = '" + type + "'";
+						System.out.println(query);
 						ps = con.prepareStatement(query);
 						result = ps.executeQuery();
-						if(result.next())
-							first = result.getInt(1);
-					}
+						int weeks = 0;
+						
+						// Changed to if/else statements for 1.6 Compatibility
+						if(type.contentEquals("student"))
+							weeks = 2;
+						else if (type.contentEquals("faculty"))
+							weeks = 12;
+						else if (type.contentEquals("staff"))
+							weeks = 6;
+						System.out.println(weeks);
 
-					// Update book copy status to out
-					query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "' AND call_number = '" + callnums[i] + "'";
-					ps = con.prepareStatement(query);
-					ps.executeUpdate();
+						// Create checkout date and due date according to borrower type
+						Calendar calendar = Calendar.getInstance();
+						long jDate = calendar.getTimeInMillis();
+						Date outDate = new Date(jDate);
+						calendar.add(Calendar.DAY_OF_YEAR, weeks*7);
+						jDate = calendar.getTimeInMillis();
+						Date dueDate = new Date(jDate);
+
+						// Checkout copy if there is an available copy
+						query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate,inDate) VALUES (borid_counter.nextval,?,?,?,?,?)";
+						ps = con.prepareStatement(query);
+						ps.setInt(1, bid);
+						ps.setString(2, callnums[i]);
+						ps.setString(3, copy);
+						ps.setDate(4, outDate);
+						ps.setDate(5, dueDate);
+						int rs2 = ps.executeUpdate();
+						if(rs2 > 0)
+							JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Borrowing table");
+						
+						if(i == 0){ // For first book
+							query = "SELECT borid_counter.currval FROM dual";
+							ps = con.prepareStatement(query);
+							result = ps.executeQuery();
+							if(result.next())
+								first = result.getInt(1);
+						}
+
+						// Update book copy status to out
+						query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
+						ps.execute(query);
+					}
+					else 
+						JOptionPane.showMessageDialog(null, "BID does not exist. Please try again");
 				}
 				
 				con.commit();
