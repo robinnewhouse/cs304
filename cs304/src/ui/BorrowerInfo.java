@@ -175,10 +175,40 @@ public class BorrowerInfo {
 		txt.setAlignmentX(SwingConstants.CENTER);
 
 		//Fields
-		JTextField fieldAccount = new JTextField(15);
+		final JTextField fieldAccount = new JTextField(15);
+		
+		fields = new JTextField[1];
+		fields[0] = fieldAccount;
 
 		//Check Account Button
 		button = new JButton("Check Account");
+		button.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				boolean fieldsFilledOut = false;
+				
+				for(JTextField f : fields){
+					if(!f.getText().isEmpty()){
+						System.out.println("Field filled");
+						fieldsFilledOut = true;
+						break;
+					}		
+				}
+				
+				if(fieldsFilledOut == false)
+					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
+				else{
+					Integer bidint = Integer.parseInt(fieldAccount.getText().trim());
+
+//					
+//					System.out.println("Account: " + fieldAccount.getText());
+//					JOptionPane.showMessageDialog(null, "bidint: " + bidint.toString());
+					db.checkAccount(fieldAccount.getText().trim());
+				}
+				
+				
+			}
+		});
 
 		//Labels Panel
 		labelPanel = new JPanel();

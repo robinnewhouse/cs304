@@ -54,8 +54,8 @@ public class DataBaseConnection {
 
 		//Get the Connection
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
-		} catch (SQLException e) {
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
+			} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
@@ -449,6 +449,55 @@ public class DataBaseConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Check borrowers account. The system will display the items the borrower has
+	 * currently borrowed and not yet returned, any outstanding fines and the
+	 * hold requests that have been placed by the borrower.
+	 */	
+	public void checkAccount(String bIDstr) {
+		
+		Integer bIDint = Integer.parseInt( bIDstr );
+		if (bIDint == null){
+			JOptionPane.showMessageDialog(null, "ID must be an integer");
+			return;
+		}
+		
+		
+		try {
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			Statement stm2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+
+			ResultSet rs;
+			ResultSet rs2;
+			
+			String bookQuery = " SELECT 'out' type, bing.call_number, bk.title, 0 amount " +
+					   " FROM book bk, borrowing bing, fine f " +
+					   " WHERE bing.bid = " + bIDint.toString() + 
+					   " AND bk.call_number = bing.call_number AND bing.inDate is NULL "+ 
+					    // add part that restricts listing only once if there is a
+						// fine and is borrowed
+					   " UNION " +
+					   " SELECT  'fine' type, bing.call_number, bk.title, f.amount " +
+						" FROM fine f, borrowing bing, book bk" +
+						" WHERE f.borid = bing.borid AND bing.call_number = bk.call_number AND bing.bid = "  + bIDint.toString() + 
+					    " AND f.paidDate is NULL " +
+					    " UNION " +
+					    " SELECT  'hold' type, bk.call_number, bk.title, 0 amount " +
+					    " FROM hold_request h, book bk " +
+					    " where h.call_number = bk.call_number AND h.bid = " + bIDint.toString();
+			
+			rs = stm.executeQuery(bookQuery);
+			Result r = new Result(rs);
+			session.loadResultPanel(r);
+			stm.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public Session getSession() {
