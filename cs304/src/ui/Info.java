@@ -22,7 +22,9 @@ public class Info extends JPanel {
 		this.db = db;
 		setPanelSpecs();
 		
-		if (string.contains("Search"))
+		if (string.contains("Login"))
+			loginPanel();
+		else if (string.contains("Search"))
 			searchPanel();
 		else if (string.contains("Hold"))
 			holdPanel();
@@ -46,6 +48,11 @@ public class Info extends JPanel {
 					popularReportPanel();
 	}
 
+	public void loginPanel() {
+		borrowerInfo = new BorrowerInfo(db);
+		this.add(borrowerInfo.loginPanel());
+	}
+	
 	public void searchPanel() {
 		borrowerInfo = new BorrowerInfo(db);
 		this.add(borrowerInfo.searchPanel());
