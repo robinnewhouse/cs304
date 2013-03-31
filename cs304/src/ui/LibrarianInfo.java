@@ -104,10 +104,18 @@ public class LibrarianInfo {
 						break;
 					}
 				}
+				//Validate the field entry
+				if(fieldYear.getText().length() < 2 || fieldYear.getText().length() > 4 || !fieldYear.getText().matches("^[0-9]*"))
+				{
+					JOptionPane.showMessageDialog(null, "Please enter a valid year");
+					fieldsFilledOut = false;
+				}
 				if(fieldsFilledOut)
 				{
 					String subject = fieldSubject.getText();
-					String[] subjects = subject.split("[-,]");
+					String[] subjects = subject.split("[,]");
+					for(int i = 1; i < subjects.length; i++)
+						subjects[i] = subjects[i].replaceFirst(" ", "");
 					int copies = Integer.parseInt(fieldCopies.getText().trim());
 					
 					if(fieldAddAuthors.getText().isEmpty())
@@ -121,7 +129,9 @@ public class LibrarianInfo {
 					}
 					else {
 						String author = fieldAddAuthors.getText();
-						String[] authors = author.split(",");
+						String authors[] = author.split(",");
+						for(int i = 1; i < authors.length; i++)
+							authors[i] = authors[i].replaceFirst(" ", "");
 						db.insertBook(fieldCallNumber.getText(), fieldISBN.getText(), fieldTitle.getText(), 
 								fieldAuthor.getText(), fieldPublisher.getText(), fieldYear.getText());
 						for(int i=0; i<copies; i++){
@@ -314,14 +324,24 @@ public class LibrarianInfo {
 		//Book Report Button
 		button = new JButton("Popular Report");
 		button.addActionListener(new ActionListener() {
+			String year;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//Check all fields filled out
 				if(fieldYear.getText().isEmpty() || fieldN.getText().isEmpty())
 					JOptionPane.showMessageDialog(null,"Please fill in both boxes");
+				//Validate year
+				if(!fieldYear.getText().matches("^[0-9]*") || !fieldN.getText().matches("^[0-9]*") 
+						|| fieldYear.getText().length() < 2 || fieldYear.getText().length() > 4)
+					JOptionPane.showMessageDialog(null, "Please enter a valid year and number of results");
 				else
 				{
-					db.popularReport(fieldYear.getText(), fieldN.getText());
+					if(fieldYear.getText().length() == 4)
+						year = fieldYear.getText().substring(2);
+					else
+						year = fieldYear.getText();
+					db.popularReport(year, fieldN.getText());
 					fieldYear.setText("");
 					fieldN.setText("");
 				}
