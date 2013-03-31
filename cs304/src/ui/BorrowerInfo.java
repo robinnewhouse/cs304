@@ -44,7 +44,7 @@ public class BorrowerInfo {
 
 		//Text
 		txt = new Text();
-		txt.setText("Enter the information to search on and then click 'Search'.");
+		txt.setText("Enter SIN or SN and click 'Login'.");
 		txt.setPreferredSize(new Dimension(250, 60));
 
 		//Labels
@@ -244,7 +244,10 @@ public class BorrowerInfo {
 		txt.setPreferredSize(new Dimension(250,70));
 
 		//Fields
-		final JTextField fieldBook = new JTextField(15);
+		final JTextField fieldCallNum = new JTextField(15);
+		fields = new JTextField[3];
+		fields[0] = fieldCallNum;
+
 
 		//Hold Button
 		button = new JButton("Place Hold Request");
@@ -264,7 +267,7 @@ public class BorrowerInfo {
 				if(fieldsFilledOut == false)
 					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
 				else{
-					//					db.placeHold(fieldBook.getText().trim());
+					db.insertHold(fieldCallNum.getText().trim());
 				}
 
 
@@ -282,7 +285,7 @@ public class BorrowerInfo {
 		labelPanel.add(txt, c);
 		c.gridy = 1;
 		c.insets = bottom;
-		labelPanel.add(fieldBook, c);
+		labelPanel.add(fieldCallNum, c);
 		c.gridy = 2;
 		labelPanel.add(button, c);
 		labelPanel.setBackground(panelBackColor);
@@ -294,16 +297,11 @@ public class BorrowerInfo {
 
 		//Text
 		txt = new Text();
-		txt.setText("Please enter the account number below and click 'Check Account' " +
-				"to get account details");
+		txt.setText("Click 'Check Account' to get account details");
 		txt.setPreferredSize(new Dimension(250,110));
 		txt.setAlignmentX(SwingConstants.CENTER);
 
 		//Fields
-		final JTextField fieldAccount = new JTextField(15);
-
-		fields = new JTextField[1];
-		fields[0] = fieldAccount;
 
 		//Check Account Button
 		button = new JButton("Check Account");
@@ -312,28 +310,12 @@ public class BorrowerInfo {
 			public void actionPerformed(ActionEvent arg0) {
 				boolean fieldsFilledOut = false;
 
-				for(JTextField f : fields){
-					if(!f.getText().isEmpty()){
-						System.out.println("Field filled");
-						fieldsFilledOut = true;
-						break;
-					}		
-				}
-
-				if(fieldsFilledOut == false)
-					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
-				else{
-					Integer bidint = Integer.parseInt(fieldAccount.getText().trim());
-
-					//					
-					//					System.out.println("Account: " + fieldAccount.getText());
-					//					JOptionPane.showMessageDialog(null, "bidint: " + bidint.toString());
-					db.checkAccount(fieldAccount.getText().trim());
-				}
-
-
+				db.checkAccount();
 			}
-		});
+
+
+		}
+	);
 
 		//Labels Panel
 		labelPanel = new JPanel();
@@ -344,75 +326,71 @@ public class BorrowerInfo {
 		c.insets = bottom;
 		labelPanel.add(txt, c);
 		c.gridx = 0;
-		c.gridy = 1;
-		c.insets = bottom;
-		labelPanel.add(fieldAccount, c);
-		c.gridx = 0;
 		c.gridy = 2;
 		c.gridwidth = 2;
 		labelPanel.add(button, c);
 		labelPanel.setBackground(panelBackColor);
 
 		return labelPanel;
+}
+
+public JPanel finePanel() {
+
+	//Fields
+	JTextField fineField = new JTextField(20);
+
+	//Buttons
+	JButton fineButton = new JButton("Pay Fine");
+	JButton checkFineButton = new JButton("Check Fines");
+
+	//Text
+	txt = new Text();
+	txt.setText("Please click on 'Check Fines' to see outstanding fines " +
+			"and enter the amount you wish to pay");
+	txt.setPreferredSize(new Dimension(250,110));
+
+	//Panel
+	fieldPanel = new JPanel(new GridLayout(3,1,0,14));
+	fieldPanel.add(checkFineButton);
+	fieldPanel.add(fineField);
+	fieldPanel.add(fineButton);
+	fieldPanel.setBackground(panelBackColor);
+
+	finalPanel = new JPanel(new GridBagLayout());
+	c = new GridBagConstraints();
+	c.gridx = 0;
+	c.gridy = 0;
+	c.fill= GridBagConstraints.HORIZONTAL;
+	c.insets = new Insets(0,0,20,0);
+	finalPanel.add(txt, c);
+	c.fill = 0;
+	c.gridy = 1;
+	finalPanel.add(fieldPanel, c);
+	finalPanel.setBackground(panelBackColor);
+
+	return finalPanel;
+}
+
+private class Label extends JLabel {
+
+	private Label(String str) {
+		super(str);
+		setFont(font);
+		setForeground(Color.black);
+	}		
+}
+
+private class Text extends JTextArea {
+
+	private Text() {
+		super();
+		setFont(font);
+		setLineWrap(true);
+		setWrapStyleWord(true);
+		setOpaque(false);
+		setBackground(txtBackColor);
+		setForeground(Color.BLACK);
 	}
-
-	public JPanel finePanel() {
-
-		//Fields
-		JTextField fineField = new JTextField(20);
-
-		//Buttons
-		JButton fineButton = new JButton("Pay Fine");
-		JButton checkFineButton = new JButton("Check Fines");
-
-		//Text
-		txt = new Text();
-		txt.setText("Please click on 'Check Fines' to see outstanding fines " +
-				"and enter the amount you wish to pay");
-		txt.setPreferredSize(new Dimension(250,110));
-
-		//Panel
-		fieldPanel = new JPanel(new GridLayout(3,1,0,14));
-		fieldPanel.add(checkFineButton);
-		fieldPanel.add(fineField);
-		fieldPanel.add(fineButton);
-		fieldPanel.setBackground(panelBackColor);
-
-		finalPanel = new JPanel(new GridBagLayout());
-		c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill= GridBagConstraints.HORIZONTAL;
-		c.insets = new Insets(0,0,20,0);
-		finalPanel.add(txt, c);
-		c.fill = 0;
-		c.gridy = 1;
-		finalPanel.add(fieldPanel, c);
-		finalPanel.setBackground(panelBackColor);
-
-		return finalPanel;
-	}
-
-	private class Label extends JLabel {
-
-		private Label(String str) {
-			super(str);
-			setFont(font);
-			setForeground(Color.black);
-		}		
-	}
-
-	private class Text extends JTextArea {
-
-		private Text() {
-			super();
-			setFont(font);
-			setLineWrap(true);
-			setWrapStyleWord(true);
-			setOpaque(false);
-			setBackground(txtBackColor);
-			setForeground(Color.BLACK);
-		}
-	}
+}
 
 }
