@@ -26,6 +26,7 @@ public class BorrowerInfo {
 	private JPanel fieldPanel;
 	private JPanel finalPanel;
 	private JButton button;
+	private JButton button2;
 	private Text txt;
 	private GridBagConstraints c;
 	private Color txtBackColor = Color.white;
@@ -37,6 +38,106 @@ public class BorrowerInfo {
 
 	public BorrowerInfo(DataBaseConnection db) {
 		this.db = db;
+	}
+
+	public JPanel loginPanel() {
+
+		//Text
+		txt = new Text();
+		txt.setText("Enter the information to search on and then click 'Search'.");
+		txt.setPreferredSize(new Dimension(250, 60));
+
+		//Labels
+		Label labelUsername = new Label("SIN or SN: ");
+		Label labelPassword = new Label("Password: ");
+
+		//Fields
+		final JTextField fieldUsername = new JTextField(15);
+		final JTextField fieldPassword = new JTextField(15);
+
+		fields = new JTextField[2];
+		fields[0] = fieldUsername;
+		fields[1] = fieldPassword;
+
+		//Set up fields with labels
+		labelUsername.setLabelFor(fieldUsername);
+		labelPassword.setLabelFor(fieldPassword);
+
+		//Search Button
+		button = new JButton("Login");
+		button.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				boolean fieldsFilledOut = false;
+
+				for(JTextField f : fields){
+					if(!f.getText().isEmpty()){
+						System.out.println("Field filled");
+						fieldsFilledOut = true;
+						break;
+					}		
+				}
+
+				if(fieldsFilledOut == false)
+					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
+				else{
+					System.out.println("Username: " + fieldUsername.getText() + " Password: " + fieldPassword.getText());
+					db.login(fieldUsername.getText(), fieldPassword.getText());
+				}
+
+
+			}
+		});
+
+		button2 = new JButton("Logout");
+		button2.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				boolean fieldsFilledOut = false;
+				db.logout();
+			}
+
+		});
+
+
+		finalPanel = new JPanel();
+		finalPanel.setLayout(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		c.insets = bottom;
+		finalPanel.add(txt, c);
+		c.gridwidth = 1;
+		c.gridx = 0;
+		c.gridy = 1;
+		c.insets = bottom;
+		finalPanel.add(labelUsername, c);
+		c.gridx = 1;
+		c.gridy = 1;
+		c.insets = bottom;
+		finalPanel.add(fieldUsername, c);
+		c.gridx = 0;
+		c.gridy = 2;
+		c.insets = bottom;
+		finalPanel.add(labelPassword, c);
+		c.gridx = 1;
+		c.gridy = 2;
+		c.insets = bottom;
+		finalPanel.add(fieldPassword, c);
+		c.gridx = 0;
+		c.gridy = 3;
+		c.gridwidth = 2;
+		finalPanel.add(button, c);
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 2;
+		finalPanel.add(button2, c);
+		finalPanel.setBackground(panelBackColor);
+
+		return finalPanel;
 	}
 
 	public JPanel searchPanel() {
@@ -55,7 +156,7 @@ public class BorrowerInfo {
 		final JTextField fieldTitle = new JTextField(15);
 		final JTextField fieldAuthor = new JTextField(15);
 		final JTextField fieldSubject = new JTextField(15);
-		
+
 		fields = new JTextField[3];
 		fields[0] = fieldTitle;
 		fields[1] = fieldAuthor;
@@ -73,7 +174,7 @@ public class BorrowerInfo {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				boolean fieldsFilledOut = false;
-				
+
 				for(JTextField f : fields){
 					if(!f.getText().isEmpty()){
 						System.out.println("Field filled");
@@ -81,15 +182,15 @@ public class BorrowerInfo {
 						break;
 					}		
 				}
-				
+
 				if(fieldsFilledOut == false)
 					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
 				else{
 					System.out.println("Keyword: " + fieldTitle.getText() + " Author: " + fieldAuthor.getText() + " Subject: " + fieldSubject.getText());
 					db.searchForItem(fieldTitle.getText(), fieldAuthor.getText(), fieldSubject.getText());
 				}
-				
-				
+
+
 			}
 		});
 
@@ -143,10 +244,34 @@ public class BorrowerInfo {
 		txt.setPreferredSize(new Dimension(250,70));
 
 		//Fields
-		JTextField fieldBook = new JTextField(15);
+		final JTextField fieldBook = new JTextField(15);
 
 		//Hold Button
 		button = new JButton("Place Hold Request");
+		button.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				boolean fieldsFilledOut = false;
+
+				for(JTextField f : fields){
+					if(!f.getText().isEmpty()){
+						System.out.println("Field filled");
+						fieldsFilledOut = true;
+						break;
+					}		
+				}
+
+				if(fieldsFilledOut == false)
+					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
+				else{
+					//					db.placeHold(fieldBook.getText().trim());
+				}
+
+
+			}
+		});
+
+
 
 		//LabelPanel
 		labelPanel = new JPanel(new GridBagLayout());
@@ -170,15 +295,45 @@ public class BorrowerInfo {
 		//Text
 		txt = new Text();
 		txt.setText("Please enter the account number below and click 'Check Account' " +
-		"to get account details");
+				"to get account details");
 		txt.setPreferredSize(new Dimension(250,110));
 		txt.setAlignmentX(SwingConstants.CENTER);
 
 		//Fields
-		JTextField fieldAccount = new JTextField(15);
+		final JTextField fieldAccount = new JTextField(15);
+
+		fields = new JTextField[1];
+		fields[0] = fieldAccount;
 
 		//Check Account Button
 		button = new JButton("Check Account");
+		button.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				boolean fieldsFilledOut = false;
+
+				for(JTextField f : fields){
+					if(!f.getText().isEmpty()){
+						System.out.println("Field filled");
+						fieldsFilledOut = true;
+						break;
+					}		
+				}
+
+				if(fieldsFilledOut == false)
+					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
+				else{
+					Integer bidint = Integer.parseInt(fieldAccount.getText().trim());
+
+					//					
+					//					System.out.println("Account: " + fieldAccount.getText());
+					//					JOptionPane.showMessageDialog(null, "bidint: " + bidint.toString());
+					db.checkAccount(fieldAccount.getText().trim());
+				}
+
+
+			}
+		});
 
 		//Labels Panel
 		labelPanel = new JPanel();
@@ -213,7 +368,7 @@ public class BorrowerInfo {
 		//Text
 		txt = new Text();
 		txt.setText("Please click on 'Check Fines' to see outstanding fines " +
-		"and enter the amount you wish to pay");
+				"and enter the amount you wish to pay");
 		txt.setPreferredSize(new Dimension(250,110));
 
 		//Panel

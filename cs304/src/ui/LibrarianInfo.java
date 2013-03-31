@@ -224,7 +224,7 @@ public class LibrarianInfo {
 		c.gridy = 9;
 		c.insets = bottom;
 		finalPanel.add(fieldCopies, c);
-		c.gridx = 1;
+		c.gridx = 0;
 		c.gridy = 10;
 		c.gridwidth = 2;
 		finalPanel.add(button, c);
@@ -317,7 +317,7 @@ public class LibrarianInfo {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(fieldYear.getText().trim().isEmpty() || fieldN.getText().trim().isEmpty())
+				if(fieldYear.getText().isEmpty() || fieldN.getText().isEmpty())
 					JOptionPane.showMessageDialog(null,"Please fill in both boxes");
 				else
 				{
