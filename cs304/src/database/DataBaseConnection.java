@@ -1,6 +1,5 @@
 package database;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -16,10 +15,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import connection.Session;
-
 import ui.Result;
 
 /**
@@ -54,9 +51,10 @@ public class DataBaseConnection {
 		}
 
 		//Get the Connection
+		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
-		} catch (SQLException e) {
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
+			} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
@@ -96,8 +94,8 @@ public class DataBaseConnection {
 	}
 
 	public void insertCopy(String callNumber){	
+		PreparedStatement ps;
 		try{
-			PreparedStatement ps;
 			ResultSet result;
 			int copyNumber = 1;
 			int rowCount = 0;
@@ -332,8 +330,8 @@ public class DataBaseConnection {
 						"WHERE call_number IN (SELECT call_number FROM book_copy WHERE status = 'out') ORDER BY call_number");
 				Result r = new Result(rs);
 				session.loadResultPanel(r);
-
-				//Close statment
+				
+				//Close statement
 				stm.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -375,16 +373,19 @@ public class DataBaseConnection {
 	 * due day (which is giver to the borrower)
 	 */
 	public void checkOutItems (String cardnum, String[] callnums) {
+		int first = 0;
 		int bid = Integer.parseInt(cardnum.trim());
 
-		PreparedStatement ps;
 		for (int i = 0; i < callnums.length; i++) {
+			PreparedStatement ps;
+			ResultSet result;
 			try {
 				boolean copyIn = true;
 				// Get copy number of an available copy
-				String query = "SELECT copy_no FROM book_copy WHERE status = 'in'";
+				String query = "SELECT copy_no FROM book_copy " +
+							   "WHERE call_number = '" + callnums[i] + "' AND status = 'in'";
 				ps = con.prepareStatement(query);
-				ResultSet result = ps.executeQuery(query);
+				result = ps.executeQuery();
 				String copy = "";
 				if(result.next()){
 					copy = result.getString(1);
@@ -393,8 +394,8 @@ public class DataBaseConnection {
 					JOptionPane.showMessageDialog(null, "No copies are available");
 					copyIn = false;
 				}
-
-				if(copyIn = true){
+				
+				if(copyIn == true){
 					// Get borrower's type
 					query = "SELECT type FROM borrower WHERE bid = " + bid;
 					ps = con.prepareStatement(query);
@@ -402,28 +403,28 @@ public class DataBaseConnection {
 					String type = "";
 					if(result.next()){
 						type = result.getString(1);
-						System.out.println("Type: " + type);
 					}
 
 					// Get borrower's loan time limit
-					query = "SELECT book_time_limit FROM borrower_type WHERE type = '" + type + "'";
-					System.out.println(query);
-					ps = con.prepareStatement(query);
-					result = ps.executeQuery();
 					int weeks = 0;
-					// This doesn't work for some reason.  Have to use switch/if instead
-					//					System.out.println(result.next());
-					//					if(result.next()){
-					//						weeks = result.getInt(1);
-					//						System.out.println("Weeks: " + weeks);
-					//					}
-					//					else
-					//						System.out.println("No results");
-					switch(type){
-					case("student"):	weeks = 2; 	break;
-					case("faculty"):	weeks = 12;	break;
-					case("staff"):		weeks = 6;	break;
-					}
+
+					/* This doesn't work for some reason.  Have to use switch/if instead */
+//					query = "SELECT book_time_limit FROM borrower_type WHERE type = '" + type + "'";
+//					System.out.println(query);
+//					ps = con.prepareStatement(query);
+//					result = ps.executeQuery();
+//					if(result.next()){
+//						weeks = result.getInt(1);
+//						System.out.println("Weeks: " + weeks);
+//					}
+//					else
+//						System.out.println("No results");
+					if(type.contentEquals("student"))
+						weeks = 2;
+					else if (type.contentEquals("faculty"))
+						weeks = 12;
+					else if (type.contentEquals("staff"))
+						weeks = 6;
 					System.out.println(weeks);
 
 					// Create checkout date and due date according to borrower type
@@ -434,6 +435,8 @@ public class DataBaseConnection {
 					jDate = calendar.getTimeInMillis();
 					Date dueDate = new Date(jDate);
 
+					System.out.println("Due Date: " + dueDate);
+					
 					// Checkout copy if there is an available copy
 					query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate,inDate) VALUES (borid_counter.nextval,?,?,?,?,?)";
 					ps = con.prepareStatement(query);
@@ -445,16 +448,43 @@ public class DataBaseConnection {
 					int rs2 = ps.executeUpdate();
 					if(rs2 > 0)
 						JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Borrowing table");
+					
+					if(i == 0){ // For first book
+						query = "SELECT borid_counter.currval FROM dual";
+						ps = con.prepareStatement(query);
+						result = ps.executeQuery();
+						if(result.next())
+							first = result.getInt(1);
+					}
 
 					// Update book copy status to out
-					query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
-					ps.execute(query);
+					query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "' AND call_number = '" + callnums[i] + "'";
+					ps = con.prepareStatement(query);
+					ps.executeUpdate();
 				}
-
+				
 				con.commit();
 				ps.close();
 			} catch (SQLException e) {
 				System.out.println("Inserting tuple in borrowing didn't work during iteration ");
+				e.printStackTrace();
+			}
+		}
+		
+		// Display all books checked out this session
+		if(first != 0){
+			try{
+				Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				String query = "SELECT c.call_number, c.copy_no, b.title, r.inDate " +
+							   "FROM book b, book_copy c, borrowing r " +
+							   "WHERE (r.call_number = c.call_number AND r.copy_no = c.copy_no AND " +
+							   		"b.call_number = c.call_number AND r.borid >=" + first + ")";
+				ResultSet result = st.executeQuery(query);
+				Result showrs = new Result(result);
+				session.loadResultPanel(showrs);
+				con.commit();
+				st.close();
+			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}

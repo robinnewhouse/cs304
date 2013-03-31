@@ -1,14 +1,20 @@
 package ui;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.sql.ResultSet;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * Result class responsible for parsing the ResultSet returned from a 
@@ -43,10 +49,6 @@ public class Result extends JScrollPane {
 			ResultSetMetaData rsmd = rs.getMetaData();
 			//Get number of columns
 			int numCols = rsmd.getColumnCount();
-			for (int i = 0; i < numCols; i++)
-			{
-				System.out.println(rsmd.getColumnName(i+1));
-			}
 			//Get number of rows(results)
 			int numRows = 0;
 			try {
@@ -83,8 +85,42 @@ public class Result extends JScrollPane {
 				}
 				
 				//Creates the Scroll table with the data from the ResultSets
-				JTable table = new JTable(dataArray, columnHeader);
-				scroll = new JScrollPane(table);
+				//Special formatting for book report if books are overdue
+				if(numCols == 3)
+				{
+					if(columnHeader[0].contentEquals("CALL_NUMBER") && columnHeader[1].contentEquals("OUTDATE") &&
+							columnHeader[2].contentEquals("INDATE"))
+					{
+						JTable table2 = new JTable(dataArray, columnHeader)
+						{
+							public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+							{
+								Component c = super.prepareRenderer(renderer, row, column);
+								//  Color row based on a dueDate value
+								if (!isRowSelected(row)) {
+									c.setBackground(getBackground());
+									int modelRow = convertRowIndexToModel(row);
+									String strDate = (String) getModel().getValueAt(modelRow, 2);
+									SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+									Date date = null;
+									try {
+										date = format.parse(strDate);
+									} catch (ParseException e) {
+										e.printStackTrace();
+									}
+									if(date.after(new Date()))
+										c.setBackground(Color.LIGHT_GRAY);
+								}
+								return c;
+							}
+						};
+						scroll = new JScrollPane(table2);
+					}
+				}
+				else {
+					JTable table = new JTable(dataArray, columnHeader);
+					scroll = new JScrollPane(table);
+				}
 			}
 			} catch (SQLException e) {}
 	

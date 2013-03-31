@@ -155,14 +155,10 @@ public class MainWindow extends JFrame implements SessionListener {
 
 				@Override
 				public void componentHidden(ComponentEvent e) {
-					// TODO Auto-generated method stub
-					
 				}
 
 				@Override
 				public void componentMoved(ComponentEvent e) {
-					// TODO Auto-generated method stub
-					
 				}
 
 				@Override
@@ -171,13 +167,9 @@ public class MainWindow extends JFrame implements SessionListener {
 				}
 
 				@Override
-				public void componentShown(ComponentEvent e) {
-					// TODO Auto-generated method stub
-					
+				public void componentShown(ComponentEvent e) {					
 				}
-				
 			});
 		}
-
 	}
 }
