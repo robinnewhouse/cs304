@@ -1,6 +1,5 @@
 package database;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -16,10 +15,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import connection.Session;
-
 import ui.Result;
 
 /**
@@ -53,8 +50,9 @@ public class DataBaseConnection {
 		}
 
 		//Get the Connection
+		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
 			} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -289,7 +287,7 @@ public class DataBaseConnection {
 				Result r = new Result(rs);
 				session.loadResultPanel(r);
 				
-				//Close statment
+				//Close statement
 				stm.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -375,11 +373,19 @@ public class DataBaseConnection {
 //					}
 //					else
 //						System.out.println("No results");
+					/* Had to 
 					switch(type){
 						case("student"):	weeks = 2; 	break;
 						case("faculty"):	weeks = 12;	break;
 						case("staff"):		weeks = 6;	break;
 					}
+					*/
+					if(type.contentEquals("student"))
+						weeks = 2;
+					else if (type.contentEquals("faculty"))
+						weeks = 12;
+					else if (type.contentEquals("staff"))
+						weeks = 6;
 					System.out.println(weeks);
 					
 					// Create checkout date and due date according to borrower type
@@ -389,6 +395,7 @@ public class DataBaseConnection {
 				    calendar.add(Calendar.DAY_OF_YEAR, weeks*7);
 				    jDate = calendar.getTimeInMillis();
 					Date dueDate = new Date(jDate);
+					System.out.println("Due Date: " + dueDate);
 					
 					// Checkout copy if there is an available copy
 					query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate,inDate) VALUES (borid_counter.nextval,?,?,?,?,?)";

@@ -113,7 +113,7 @@ public class ClerkInfo {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				boolean fieldsFilledOut = true;
-				//iterate through each field to make sure something is
+				//Iterate through each field to make sure something is
 				//in each field
 				for(int i = 0; i < fields.length; i++)
 				{
@@ -137,7 +137,6 @@ public class ClerkInfo {
 					}
 				}
 			}
-		
 		});
 
 		finalPanel = new JPanel();
@@ -184,6 +183,9 @@ public class ClerkInfo {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//Check to make sure fields are filled out
+				if(fieldNumber.getText().isEmpty() || fieldCallNumbers.getText().isEmpty())
+					JOptionPane.showMessageDialog(null, "Please fill out each field");
 				//pass card number and call number values
 				String callnum = fieldCallNumbers.getText();
 				String[] callnums = callnum.split(" ");
@@ -191,6 +193,9 @@ public class ClerkInfo {
 					System.out.println(callnums[i]);
 				}
 				db.checkOutItems(fieldNumber.getText(), callnums);
+				//Empty fields
+				fieldNumber.setText("");
+				fieldCallNumbers.setText("");
 			}
 		});
 
