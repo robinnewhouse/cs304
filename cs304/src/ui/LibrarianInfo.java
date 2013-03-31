@@ -19,7 +19,6 @@ import javax.swing.JTextField;
 import database.DataBaseConnection;
 
 public class LibrarianInfo {
-
 	private JPanel finalPanel;
 	private Text txt;
 	private JButton button;

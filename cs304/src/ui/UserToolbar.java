@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,7 +17,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 
 public class UserToolbar extends JToolBar{
-
 	private MainWindow main;
 	private JMenuBar menuBar;
 	private JMenu userTypeMenu;

@@ -110,12 +110,14 @@ public class DataBaseConnection {
 			ps = con.prepareStatement("INSERT INTO book_copy (call_number, copy_no, status)" +
 									  " VALUES(?, ?, ?)");
 			ps.setString(1, callNumber);
-			ps.setString(2, "c" + String.valueOf(copyNumber++));
+			ps.setString(2, "c" + String.valueOf(copyNumber));
 			ps.setString(3, "in");
 			rowCount += ps.executeUpdate();
 			
-			if(rowCount > 0)
+			if(rowCount == 1)
 				JOptionPane.showMessageDialog(null, "Added entry to Book_Copy table");
+			else if(rowCount > 1)
+				JOptionPane.showMessageDialog(null, "Added " + rowCount + " entries to Book_Copy table");
 			//Commit changes and close prepared statements
 			con.commit();
 			ps.close();
@@ -302,20 +304,13 @@ public class DataBaseConnection {
 	 * 		Strings containing the year, and the number of results to query for, in that order.
 	 */
 	public void popularReport(String year, String n) {
-		
-		/*
-		 * This is a weird bug. Executing the following query in the terminal database
-		 * has the correct results, but for some reason while doing it from here
-		 * it doesn't work. The culprit is the 'where outDate like '%" + year + "-%'
-		 * part. If I take that out, the query returns results.
-		 */
 		try {
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
 			
 			rs = stm.executeQuery("select * from (select call_number, count(call_number) from borrowing " +
-					"where outDate like '%" + year + "-%' group by call_number) where rownum <= " +
+					"where outDate like '%" + year + "%' group by call_number) where rownum <= " +
 					n);
 			Result r = new Result(rs);
 			session.loadResultPanel(r);
@@ -336,7 +331,7 @@ public class DataBaseConnection {
 	 * due day (which is giver to the borrower)
 	 */
 	public void checkOutItems (String cardnum, String[] callnums) {
-		int bid = Integer.parseInt(cardnum);
+		int bid = Integer.parseInt(cardnum.trim());
 		
 		PreparedStatement ps;
 		for (int i = 0; i < callnums.length; i++) {
@@ -346,53 +341,66 @@ public class DataBaseConnection {
 				String query = "SELECT copy_no FROM book_copy WHERE status = 'in'";
 				ps = con.prepareStatement(query);
 				ResultSet result = ps.executeQuery(query);
-				result.next();
-				String copy = result.getString(1);
+				String copy = "";
+				if(result.next()){
+					copy = result.getString(1);
+				}
 				if(copy.isEmpty()){ // If all copies out
 					JOptionPane.showMessageDialog(null, "No copies are available");
 					copyIn = false;
 				}
-					
+				
 				if(copyIn = true){
-					// Get borrower's loan time limit
+					// Get borrower's type
 					query = "SELECT type FROM borrower WHERE bid = " + bid;
 					ps = con.prepareStatement(query);
 					result = ps.executeQuery();
-					result.next();
-					String type = result.getString(1);
-					if(type.toLowerCase().equals("student")){
-						
-					}
-					else if(type.toLowerCase().equals("faculty")){
-						
-					}
-					else if(type.toLowerCase().equals("staff")){
-						
+					String type = "";
+					if(result.next()){
+						type = result.getString(1);
+						System.out.println("Type: " + type);
 					}
 					
-					// Create due date according to borrower type
-					String strDate = "14/ 05/13";
-					java.util.Date jDate = null;
-					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-					try {
-						jDate = sdf.parse(strDate);
-					} catch (ParseException e1) {
-						e1.printStackTrace();
+					// Get borrower's loan time limit
+					query = "SELECT book_time_limit FROM borrower_type WHERE type = '" + type + "'";
+					System.out.println(query);
+					ps = con.prepareStatement(query);
+					result = ps.executeQuery();
+					int weeks = 0;
+					// This doesn't work for some reason.  Have to use switch/if instead
+//					System.out.println(result.next());
+//					if(result.next()){
+//						weeks = result.getInt(1);
+//						System.out.println("Weeks: " + weeks);
+//					}
+//					else
+//						System.out.println("No results");
+					switch(type){
+						case("student"):	weeks = 2; 	break;
+						case("faculty"):	weeks = 12;	break;
+						case("staff"):		weeks = 6;	break;
 					}
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTime(jDate);
-					Date sqlDate = new Date(calendar.getTimeInMillis());
+					System.out.println(weeks);
+					
+					// Create checkout date and due date according to borrower type
+				    Calendar calendar = Calendar.getInstance();
+				    long jDate = calendar.getTimeInMillis();
+				    Date outDate = new Date(jDate);
+				    calendar.add(Calendar.DAY_OF_YEAR, weeks*7);
+				    jDate = calendar.getTimeInMillis();
+					Date dueDate = new Date(jDate);
 					
 					// Checkout copy if there is an available copy
-					query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate) VALUES (borid_counter.nextval,?,?,?,?)";
+					query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate,inDate) VALUES (borid_counter.nextval,?,?,?,?,?)";
 					ps = con.prepareStatement(query);
 					ps.setInt(1, bid);
 					ps.setString(2, callnums[i]);
 					ps.setString(3, copy);
-					ps.setDate(4, sqlDate);
+					ps.setDate(4, outDate);
+					ps.setDate(5, dueDate);
 					int rs2 = ps.executeUpdate();
 					if(rs2 > 0)
-						JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to table");
+						JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Borrowing table");
 					
 					// Update book copy status to out
 					query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
