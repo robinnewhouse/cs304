@@ -48,7 +48,7 @@ public class BorrowerInfo {
 		txt.setPreferredSize(new Dimension(250, 60));
 
 		//Labels
-		Label labelUsername = new Label("SIN or SN: ");
+		Label labelUsername = new Label("BID: ");
 		Label labelPassword = new Label("Password: ");
 
 		//Fields
@@ -85,8 +85,9 @@ public class BorrowerInfo {
 					System.out.println("Username: " + fieldUsername.getText() + " Password: " + fieldPassword.getText());
 					db.login(fieldUsername.getText(), fieldPassword.getText());
 				}
-
-
+				
+				for(JTextField f : fields)
+					f.setText("");
 			}
 		});
 
