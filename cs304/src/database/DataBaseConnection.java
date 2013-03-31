@@ -255,6 +255,49 @@ public class DataBaseConnection {
 	}
 
 	/**
+	 * Place a hold request for a book that is out. When the item is returned,
+	 * the system sends an email to the borrower and informs the library clerk
+	 * to keep the book out of the shelves.
+	 */	
+	public void insertHold(String callNumStr) {
+
+		String bIDstr = null;
+
+		if (null == globalbID){
+			JOptionPane.showMessageDialog(null, "Please log in first");
+			return;
+		}else{
+			bIDstr = globalbID;
+		}
+		
+		PreparedStatement ps;
+		try{
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+	
+			// get issueDate
+			Calendar calendar = Calendar.getInstance();
+			long jDate = calendar.getTimeInMillis();
+			Date outDate = new Date(jDate);
+			
+			String query = "INSERT INTO hold_request (hid,bid,call_number,issuedDate) VALUES (hid_counter.nextval,?,?,?)";
+			ps = con.prepareStatement(query);
+			ps.setString(1, bIDstr);
+			ps.setString(2, callNumStr);
+			ps.setDate(3, outDate);
+			int rs2 = ps.executeUpdate();
+			if(rs2 > 0)
+				JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Hold table");
+	
+			con.commit();
+			ps.close();
+		} catch (SQLException e) {
+			System.out.println("Inserting tuple in borrowing didn't work during iteration ");
+			e.printStackTrace();
+		}
+	}
+
+	/**
 	 * Lists all the books that are currently checked out. Optional parameter can include a 
 	 * subject to narrow down the results.
 	 * 
@@ -457,17 +500,15 @@ public class DataBaseConnection {
 	 * currently borrowed and not yet returned, any outstanding fines and the
 	 * hold requests that have been placed by the borrower.
 	 */	
-	public void checkAccount(String bIDstr) {
-		Integer bIDint = null;
-		try { 
-			bIDint = Integer.parseInt( bIDstr );
-	    } catch(NumberFormatException e) { 
-	    	JOptionPane.showMessageDialog(null, "ID must be an integer");
-	    	return; 
-	    }
-		if (bIDint == null){
-			JOptionPane.showMessageDialog(null, "ID must be an integer");
+	public void checkAccount() {
+
+		String bIDstr = null;
+
+		if (null == globalbID){
+			JOptionPane.showMessageDialog(null, "Please log in first");
 			return;
+		}else{
+			bIDstr = globalbID;
 		}
 
 
@@ -479,19 +520,19 @@ public class DataBaseConnection {
 
 			String bookQuery = " SELECT 'out' type, bing.call_number, bk.title, 0 amount " +
 					" FROM book bk, borrowing bing, fine f " +
-					" WHERE bing.bid = " + bIDint.toString() + 
+					" WHERE bing.bid = " + bIDstr + 
 					" AND bk.call_number = bing.call_number AND bing.inDate is NULL "+ 
 					// add part that restricts listing only once if there is a
 					// fine and is borrowed
 					" UNION " +
 					" SELECT  'fine' type, bing.call_number, bk.title, f.amount " +
 					" FROM fine f, borrowing bing, book bk" +
-					" WHERE f.borid = bing.borid AND bing.call_number = bk.call_number AND bing.bid = "  + bIDint.toString() + 
+					" WHERE f.borid = bing.borid AND bing.call_number = bk.call_number AND bing.bid = "  + bIDstr + 
 					" AND f.paidDate is NULL " +
 					" UNION " +
 					" SELECT  'hold' type, bk.call_number, bk.title, 0 amount " +
 					" FROM hold_request h, book bk " +
-					" where h.call_number = bk.call_number AND h.bid = " + bIDint.toString();
+					" where h.call_number = bk.call_number AND h.bid = " + bIDstr;
 
 			rs = stm.executeQuery(bookQuery);
 			Result r = new Result(rs);
@@ -502,124 +543,20 @@ public class DataBaseConnection {
 		}
 
 	}
-	//
-	//	/**
-	//	 * Place a hold request for a book that is out. When the item is returned,
-	//	 * the system sends an email to the borrower and informs the library clerk
-	//	 * to keep the book out of the shelves.
-	//	 */	
-	//	public void placeHold(String callNumstr) {
-	//
-	//		Integer callNoint = Integer.parseInt( callNumstr );
-	//		if (callNumstr == null){
-	//			JOptionPane.showMessageDialog(null, "Call number must be an integer");
-	//			return;
-	//		}
-	//
-	//		Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
-	//				ResultSet.CONCUR_UPDATABLE);
-	//
-	//		ResultSet rs;
-	//
-	//		int rowCount = 0;
-	//
-	//		PreparedStatement ps;
-	//		for (int i = 0; i < callnums.length; i++) {
-	//			try {
-	//				boolean copyIn = true;
-	//				// Get copy number of an available copy
-	//				String query = "SELECT copy_no FROM book_copy WHERE status = 'in'";
-	//				ps = con.prepareStatement(query);
-	//				ResultSet result = ps.executeQuery(query);
-	//				String copy = "";
-	//				if(result.next()){
-	//					copy = result.getString(1);
-	//				}
-	//				if(copy.isEmpty()){ // If all copies out
-	//					JOptionPane.showMessageDialog(null, "No copies are available");
-	//					copyIn = false;
-	//				}
-	//
-	//				if(copyIn = true){
-	//					// Get borrower's type
-	//					query = "SELECT type FROM borrower WHERE bid = " + bid;
-	//					ps = con.prepareStatement(query);
-	//					result = ps.executeQuery();
-	//					String type = "";
-	//					if(result.next()){
-	//						type = result.getString(1);
-	//						System.out.println("Type: " + type);
-	//					}
-	//
-	//					// Get borrower's loan time limit
-	//					query = "SELECT book_time_limit FROM borrower_type WHERE type = '" + type + "'";
-	//					System.out.println(query);
-	//					ps = con.prepareStatement(query);
-	//					result = ps.executeQuery();
-	//					int weeks = 0;
-	//					// This doesn't work for some reason.  Have to use switch/if instead
-	//					//					System.out.println(result.next());
-	//					//					if(result.next()){
-	//					//						weeks = result.getInt(1);
-	//					//						System.out.println("Weeks: " + weeks);
-	//					//					}
-	//					//					else
-	//					//						System.out.println("No results");
-	//					switch(type){
-	//					case("student"):	weeks = 2; 	break;
-	//					case("faculty"):	weeks = 12;	break;
-	//					case("staff"):		weeks = 6;	break;
-	//					}
-	//					System.out.println(weeks);
-	//
-	//					// Create checkout date and due date according to borrower type
-	//					Calendar calendar = Calendar.getInstance();
-	//					long jDate = calendar.getTimeInMillis();
-	//					Date outDate = new Date(jDate);
-	//					calendar.add(Calendar.DAY_OF_YEAR, weeks*7);
-	//					jDate = calendar.getTimeInMillis();
-	//					Date dueDate = new Date(jDate);
-	//
-	//					// Checkout copy if there is an available copy
-	//					query = "INSERT INTO borrowing (borid,bid,call_number,copy_no,outDate,inDate) VALUES (borid_counter.nextval,?,?,?,?,?)";
-	//					ps = con.prepareStatement(query);
-	//					ps.setInt(1, bid);
-	//					ps.setString(2, callnums[i]);
-	//					ps.setString(3, copy);
-	//					ps.setDate(4, outDate);
-	//					ps.setDate(5, dueDate);
-	//					int rs2 = ps.executeUpdate();
-	//					if(rs2 > 0)
-	//						JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Borrowing table");
-	//
-	//					// Update book copy status to out
-	//					query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
-	//					ps.execute(query);
-	//				}
-	//
-	//				con.commit();
-	//				ps.close();
-	//			} catch (SQLException e) {
-	//				System.out.println("Inserting tuple in borrowing didn't work during iteration ");
-	//				e.printStackTrace();
-	//			}
-	//		}
-	//
-	//	}
 
 	public Session getSession() {
 		return session;
 	}
 
 	public void login(String username, String password) {
-		
+
 		Integer usernameInt = null;
 		try { 
 			usernameInt = Integer.parseInt(username); 
-	    } catch(NumberFormatException e) { 
-	    	JOptionPane.showMessageDialog(null, "Username must be an integer");
-	    	return; 
-	    }
+		} catch(NumberFormatException e) { 
+			JOptionPane.showMessageDialog(null, "Username must be an integer");
+			return; 
+		}
 		if (usernameInt == null){
 			JOptionPane.showMessageDialog(null, "Username must be an integer");
 			return;
@@ -649,15 +586,19 @@ public class DataBaseConnection {
 				JOptionPane.showMessageDialog(null, "Username/password combination does not exist");
 			}
 			stm.close();
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void logout() {
-		JOptionPane.showMessageDialog(null, "Logged out");
 		globalbID = null;
+		// TODO clear results on logout
+
+		//		ResultSet rs = null;
+		//		session.loadResultPanel(new Result(rs));
+		JOptionPane.showMessageDialog(null, "Logged out");
 	}
 
 }
