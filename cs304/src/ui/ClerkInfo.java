@@ -304,7 +304,7 @@ public class ClerkInfo {
 	}
 
 	public JPanel overduePanel() {
-
+		
 		//Text
 		txt = new Text();
 		txt.setText("Please click 'Overdue Items' button to see all items that are overdue");
@@ -312,7 +312,15 @@ public class ClerkInfo {
 
 		//Check overdue items button
 		button = new JButton("Overdue Items");
+		button.addActionListener(new ActionListener(){
 
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				db.checkOverdueItems();
+			}
+		});
+			
 		//Panel
 		fieldPanel = new JPanel();
 		fieldPanel.setLayout(new GridBagLayout());
