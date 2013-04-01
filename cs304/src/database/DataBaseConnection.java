@@ -468,9 +468,10 @@ public class DataBaseConnection {
 			try{
 				Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				String query = "SELECT c.call_number, c.copy_no, b.title, r.inDate " +
-						"FROM book b, book_copy c, borrowing r " +
-						"WHERE (r.call_number = c.call_number AND r.copy_no = c.copy_no AND " +
-						"b.call_number = c.call_number AND r.borid >=" + first + ")";
+
+							   "FROM book b, book_copy c, borrowing r " +
+							   "WHERE ( (r.call_number = c.call_number) AND (r.copy_no = c.copy_no) AND " +
+							   "(b.call_number = c.call_number AND r.borid >=" + first + "))";
 				ResultSet result = st.executeQuery(query);
 				Result showrs = new Result(result);
 				session.loadResultPanel(showrs);
@@ -485,27 +486,28 @@ public class DataBaseConnection {
 	public void searchForItem(String keyword, String author, String subject){
 		try {
 			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			String query = "SELECT b.call_number, b.isbn, b.title, b.main_author, b.publisher, b.year, c.status " +
+			String query = "SELECT b.call_number, c.copy_no, b.isbn, b.title, b.main_author, b.publisher, b.year, c.status " +
 					"FROM book b, book_copy c " +
-					"WHERE b.call_number IN " +
-					"	(SELECT b.call_number " +
-					"	 FROM book b, has_subject s " +
-					"	 WHERE ";
+					"WHERE b.call_number = c.call_number AND b.call_number IN " +
+					"(SELECT b.call_number FROM book b, has_subject s, has_author a WHERE ";
 
 			if(!keyword.isEmpty())
-				query += "(lower(b.title) LIKE lower('%" + keyword + "%'))";
+				query += "(lower(b.title) LIKE lower('%" + keyword + "%')) ";
 
+			/* Can't get it to also search additional authors*/
 			if(!author.isEmpty() && !keyword.isEmpty())
-				query += "AND (lower(b.main_author) LIKE lower('%" + author + "%'))";
+				query += "AND (lower(b.main_author) LIKE lower('%" + author + "%')) " ;
+			//"(b.call_number = s.call_number AND lower(a.name) LIKE lower('%" + author + "%')))";
 			else if(!author.isEmpty() && keyword.isEmpty())
-				query += "(lower(b.main_author) LIKE lower('%" + author + "%'))";
+				query += "(lower(b.main_author) LIKE lower('%" + author + "%')) ";
+			//"(b.call_number = a.call_number AND lower(a.name) LIKE lower('%" + author + "%'))) ";
 
 			if(!subject.isEmpty() && (!keyword.isEmpty() || !author.isEmpty()))
 				query += "AND (b.call_number = s.call_number AND lower(s.subject) LIKE lower('%" + subject + "%'))";
 			else if (!subject.isEmpty() && (keyword.isEmpty() && author.isEmpty()))
 				query += "(b.call_number = s.call_number AND (lower(s.subject) LIKE lower('%" + subject + "%')))";
-
 			query += ")";
+
 			System.out.println(query);
 			ResultSet result = st.executeQuery(query);
 			Result showrs = new Result(result);
@@ -632,8 +634,8 @@ public class DataBaseConnection {
 
 			String userQuery = " SELECT bid " +
 					" FROM borrower " +
-					" WHERE sinOrStNo = " + usernameInt.toString() + 
-					" AND password = " + password ;
+					" WHERE bid = " + usernameInt.toString() + 
+					" AND password = '" + password + "'" ;
 
 			rs = stm.executeQuery(userQuery);
 			if(rs!=null && rs.next()){
