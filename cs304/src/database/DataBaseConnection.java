@@ -624,4 +624,23 @@ public class DataBaseConnection {
 		JOptionPane.showMessageDialog(null, "Logged out");
 	}
 
+	public void checkOverdueItems() {
+		Calendar calendar = Calendar.getInstance();
+		long today = calendar.getTimeInMillis();
+		Date todaySQL = new Date(today);
+		
+		try {
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			String query = "SELECT call_number, inDate FROM borrowing WHERE inDate < '" + todaySQL + "'";
+			System.out.println(todaySQL);
+			ResultSet rs = stm.executeQuery(query);
+			Result result = new Result(rs);
+			session.loadResultPanel(result);
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
