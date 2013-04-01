@@ -610,14 +610,14 @@ public class DataBaseConnection {
 	}
 
 	public void login(String username, String password) {
-
+		
 		Integer usernameInt = null;
 		try { 
 			usernameInt = Integer.parseInt(username); 
-		} catch(NumberFormatException e) { 
-			JOptionPane.showMessageDialog(null, "Username must be an integer");
-			return; 
-		}
+	    } catch(NumberFormatException e) { 
+	    	JOptionPane.showMessageDialog(null, "Username must be an integer");
+	    	return; 
+	    }
 		if (usernameInt == null){
 			JOptionPane.showMessageDialog(null, "Username must be an integer");
 			return;
@@ -634,8 +634,8 @@ public class DataBaseConnection {
 
 			String userQuery = " SELECT bid " +
 					" FROM borrower " +
-					" WHERE bid = " + usernameInt.toString() + 
-					" AND password = '" + password + "'" ;
+					" WHERE sinOrStNo = " + usernameInt.toString() + 
+					" AND password = " + password ;
 
 			rs = stm.executeQuery(userQuery);
 			if(rs!=null && rs.next()){
@@ -647,20 +647,19 @@ public class DataBaseConnection {
 				JOptionPane.showMessageDialog(null, "Username/password combination does not exist");
 			}
 			stm.close();
-
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void logout() {
-		globalbID = null;
-		// TODO clear results on logout
-
-		//		ResultSet rs = null;
-		//		session.loadResultPanel(new Result(rs));
 		JOptionPane.showMessageDialog(null, "Logged out");
+		//TODO clear results on logout
+		globalbID = null;
 	}
+
+
 
 	public Session getSession() {
 		return session;
