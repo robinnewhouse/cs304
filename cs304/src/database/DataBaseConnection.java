@@ -53,7 +53,7 @@ public class DataBaseConnection {
 		//Get the Connection
 		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_l5y7", "a74677097");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -246,6 +246,55 @@ public class DataBaseConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void checkOverdueItems() {
+		Calendar calendar = Calendar.getInstance();
+		long today = calendar.getTimeInMillis();
+		Date todaySQL = new Date(today);
+		try {
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			ResultSet rs;
+			rs = stm.executeQuery("SELECT bid, call_number FROM borrowing WHERE inDate < '" + todaySQL + "'");
+			Result r = new Result(rs);
+			session.loadResultPanel(r);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void overdueEmails(String borrowers) {
+		Calendar calendar = Calendar.getInstance();
+		long today = calendar.getTimeInMillis();
+		Date todaySQL = new Date(today);
+		try {
+			String query = "SELECT bid, emailAddress FROM borrower WHERE bid IN ";
+			
+			if(borrowers.equals("()"))
+				query +="(SELECT bid FROM borrowing WHERE inDate < '" + todaySQL + "')";
+			else
+				query += borrowers;
+			
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			ResultSet rs;
+			rs = stm.executeQuery(query);
+			
+			if(rs.next())
+				JOptionPane.showMessageDialog(null, "Sent automated emails to the following borrowers:");
+			else
+				JOptionPane.showMessageDialog(null, "No borrowers with those ids.  No emails sent");
+			Result r = new Result(rs);
+			session.loadResultPanel(r);
+
+			//Close statement
+			stm.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	/**
@@ -504,8 +553,6 @@ public class DataBaseConnection {
 			session.loadResultPanel(r);
 			con.commit();
 		
-			
-			
 			if (rs != null) { // if the above query returns a valid tuple
 				Statement st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				int rs2 = st2.executeUpdate("UPDATE book_copy SET status = 'in' WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
@@ -731,29 +778,7 @@ public class DataBaseConnection {
 		globalbID = null;
 	}
 
-
-
 	public Session getSession() {
 		return session;
 	}
-
-	public void checkOverdueItems() {
-		Calendar calendar = Calendar.getInstance();
-		long today = calendar.getTimeInMillis();
-		Date todaySQL = new Date(today);
-		
-		try {
-			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
-					ResultSet.CONCUR_UPDATABLE);
-			String query = "SELECT call_number, inDate FROM borrowing WHERE inDate < '" + todaySQL + "'";
-			System.out.println(todaySQL);
-			ResultSet rs = stm.executeQuery(query);
-			Result result = new Result(rs);
-			session.loadResultPanel(result);
-			con.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 }

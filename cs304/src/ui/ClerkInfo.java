@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -307,17 +308,41 @@ public class ClerkInfo {
 		
 		//Text
 		txt = new Text();
-		txt.setText("Please click 'Overdue Items' button to see all items that are overdue");
-		txt.setPreferredSize(new Dimension(250, 50));
-
+		txt.setText("Please click 'Overdue Items' button to see all items that are overdue \n\n" +
+					"To send emails to borrowers reminding them of their overdue items, enter their " +
+					"BIDs and click the 'Send Email' button.  Leaving the field blank will send an email " +
+					"to all overdue borrowers");
+		txt.setPreferredSize(new Dimension(250, 200));
+		
+		Label labelBorrowers = new Label("CallNumbers: ");
+		final JTextArea fieldBorrowers = new JTextArea(8, 20);
+		fieldBorrowers.setLineWrap(true);
+		labelBorrowers.setLabelFor(fieldBorrowers);
+		
 		//Check overdue items button
 		button = new JButton("Overdue Items");
 		button.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				db.checkOverdueItems();
+			}
+		});
+		
+		JButton email = new JButton("Send Email");
+		email.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// Convert input into form (101,102,103,...)
+				String input = fieldBorrowers.getText();
+				String[] bor = input.split(", ");
+				String borrowers = "(";
+				for(int i=0; i<bor.length-1; i++)
+					borrowers += bor[i] + ",";
+				borrowers += bor[bor.length-1] + ")";
+				
+				db.overdueEmails(borrowers);
 			}
 		});
 			
@@ -333,6 +358,15 @@ public class ClerkInfo {
 		c.fill = 0;
 		c.gridy = 1;
 		fieldPanel.add(button, c);
+		c.gridx = 1;
+		c.gridy = 10;
+		c.insets = new Insets(0,0,20,0);
+		fieldPanel.add(fieldBorrowers, c);
+		c.gridx = 1;
+		c.gridy = 12;
+		c.insets = new Insets(0,0,20,0);
+		fieldPanel.add(email, c);
+		
 		fieldPanel.setBackground(panelBackColor);
 
 		return fieldPanel;
