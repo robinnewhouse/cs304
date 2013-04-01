@@ -503,8 +503,7 @@ public class DataBaseConnection {
 			
 			session.loadResultPanel(r);
 			con.commit();
-		// Close statement
-			st.close();
+		
 			
 			
 			if (rs != null) { // if the above query returns a valid tuple
@@ -520,13 +519,31 @@ public class DataBaseConnection {
 				
 				JOptionPane.showMessageDialog(null, notifyClerk);
 				
-				// TODO assess fine
+				// Assess fine
+				Calendar calendar = Calendar.getInstance();
+				long today = calendar.getTimeInMillis();
+				Date returnDate = new Date(today);
+				//Date dueDate = null;
+				
+				//while (rs.next()) {
+				Date dueDate = rs.getDate(5);
+				//}
+				
+				System.out.println("Due date is " + dueDate + " and you returned this book on " + returnDate);
+				if (returnDate.after(dueDate)) {
+					// fine this person
+					JOptionPane.showMessageDialog(null, "You will get fined");
+				}
+				
+				
+				
 				
 				// TODO check for hold on the book
 			}
 			
 			
-			
+			// Close statement
+						st.close();	
 			
 		} catch (SQLException e) {
 			System.out.println("Processing return failed");
