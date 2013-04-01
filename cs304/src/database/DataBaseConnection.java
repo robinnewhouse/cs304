@@ -523,28 +523,22 @@ public class DataBaseConnection {
 				Calendar calendar = Calendar.getInstance();
 				long today = calendar.getTimeInMillis();
 				Date returnDate = new Date(today);
-				//Date dueDate = null;
-				
-				//while (rs.next()) {
+								
+				while (rs.next()) {
+				System.out.println("While (rs.next()) block is executed");
 				Date dueDate = rs.getDate(5);
-				//}
-				
 				System.out.println("Due date is " + dueDate + " and you returned this book on " + returnDate);
 				if (returnDate.after(dueDate)) {
 					// fine this person
 					JOptionPane.showMessageDialog(null, "You will get fined");
+					}
 				}
-				
-				
-				
-				
 				// TODO check for hold on the book
+				
+				
 			}
-			
-			
-			// Close statement
-						st.close();	
-			
+		// Close statement
+			st.close();	
 		} catch (SQLException e) {
 			System.out.println("Processing return failed");
 			e.printStackTrace();
