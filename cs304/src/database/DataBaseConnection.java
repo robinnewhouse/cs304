@@ -53,8 +53,8 @@ public class DataBaseConnection {
 		//Get the Connection
 		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
-			} catch (SQLException e) {
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_l5y7", "a74677097");
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
@@ -161,7 +161,7 @@ public class DataBaseConnection {
 	 * 		The callNumber and Author name associated with it, in that order
 	 */
 	public void insertAuthors(String[] authors, String callNumber) {
-		
+
 		PreparedStatement ps;
 		int rowCount = 0;
 		try {
@@ -263,17 +263,17 @@ public class DataBaseConnection {
 		}else{
 			bIDstr = globalbID;
 		}
-		
+
 		PreparedStatement ps;
 		try{
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
-	
+
 			// get issueDate
 			Calendar calendar = Calendar.getInstance();
 			long jDate = calendar.getTimeInMillis();
 			Date outDate = new Date(jDate);
-			
+
 			String query = "INSERT INTO hold_request (hid,bid,call_number,issuedDate) VALUES (hid_counter.nextval,?,?,?)";
 			ps = con.prepareStatement(query);
 			ps.setString(1, bIDstr);
@@ -282,7 +282,7 @@ public class DataBaseConnection {
 			int rs2 = ps.executeUpdate();
 			if(rs2 > 0)
 				JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Hold table");
-	
+
 			con.commit();
 			ps.close();
 		} catch (SQLException e) {
@@ -326,7 +326,7 @@ public class DataBaseConnection {
 						"WHERE call_number IN (SELECT call_number FROM book_copy WHERE status = 'out') ORDER BY call_number");
 				Result r = new Result(rs);
 				session.loadResultPanel(r);
-				
+
 				//Close statement
 				stm.close();
 			} catch (SQLException e) {
@@ -379,7 +379,7 @@ public class DataBaseConnection {
 				boolean copyIn = true;
 				// Get copy number of an available copy
 				String query = "SELECT copy_no FROM book_copy " +
-							   "WHERE call_number = '" + callnums[i] + "' AND status = 'in'";
+						"WHERE call_number = '" + callnums[i] + "' AND status = 'in'";
 				ps = con.prepareStatement(query);
 				result = ps.executeQuery();
 				String copy = "";
@@ -390,7 +390,7 @@ public class DataBaseConnection {
 					JOptionPane.showMessageDialog(null, "No copies are available");
 					copyIn = false;
 				}
-				
+
 				if(copyIn == true){
 					// Get borrower's type
 					query = "SELECT type FROM borrower WHERE bid = " + bid;
@@ -409,7 +409,7 @@ public class DataBaseConnection {
 						ps = con.prepareStatement(query);
 						result = ps.executeQuery();
 						int weeks = 0;
-						
+
 						// Changed to if/else statements for 1.6 Compatibility
 						if(type.contentEquals("student"))
 							weeks = 2;
@@ -438,7 +438,7 @@ public class DataBaseConnection {
 						int rs2 = ps.executeUpdate();
 						if(rs2 > 0)
 							JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Borrowing table");
-						
+
 						if(i == 0){ // For first book
 							query = "SELECT borid_counter.currval FROM dual";
 							ps = con.prepareStatement(query);
@@ -454,7 +454,7 @@ public class DataBaseConnection {
 					else 
 						JOptionPane.showMessageDialog(null, "BID does not exist. Please try again");
 				}
-				
+
 				con.commit();
 				ps.close();
 			} catch (SQLException e) {
@@ -462,15 +462,16 @@ public class DataBaseConnection {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// Display all books checked out this session
 		if(first != 0){
 			try{
 				Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				String query = "SELECT c.call_number, c.copy_no, b.title, r.inDate " +
+
 							   "FROM book b, book_copy c, borrowing r " +
 							   "WHERE ( (r.call_number = c.call_number) AND (r.copy_no = c.copy_no) AND " +
-							   		"(b.call_number = c.call_number AND r.borid >=" + first + "))";
+							   "(b.call_number = c.call_number AND r.borid >=" + first + "))";
 				ResultSet result = st.executeQuery(query);
 				Result showrs = new Result(result);
 				session.loadResultPanel(showrs);
@@ -482,13 +483,85 @@ public class DataBaseConnection {
 		}
 	}
 
+	
+	/**
+	 * Processes a return. When  an item is returned, the clerk records the return by providing the item's
+	 * catalogue number. The system determines the borrower who had borrowed the item and records that the
+	 * the item is "in".  If the item is overdue, a fine is assessed for the borrower.  If there is a hold
+	 * request for this item by another borrower, the item is registered as "on hold" and a message is send
+	 * to the borrower who made the hold request.
+	 */
+	public void processReturn(String[] callnum) {
+		if (callnum.length != 2) {
+			JOptionPane.showMessageDialog(null, "Please add one callnumber and copy number at a time");
+		}
+		
+		try {
+			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			ResultSet rs = st.executeQuery("SELECT * FROM borrowing WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
+			Result r = new Result(rs);
+			
+			session.loadResultPanel(r);
+			con.commit();
+		
+			
+			
+			if (rs != null) { // if the above query returns a valid tuple
+				Statement st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				int rs2 = st2.executeUpdate("UPDATE book_copy SET status = 'in' WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
+				
+				String notifyClerk;
+				if (rs2 > 0) {
+					notifyClerk = "Processed return for book: " + callnum[0] + " copy no: " + callnum[1];
+				} else {
+					notifyClerk = "Return did not process successfully";
+				}
+				
+				JOptionPane.showMessageDialog(null, notifyClerk);
+				
+				// Assess fine
+				Calendar calendar = Calendar.getInstance();
+				long today = calendar.getTimeInMillis();
+				Date returnDate = new Date(today);
+								
+				while (rs.next()) {
+				System.out.println("While (rs.next()) block is executed");
+				Date dueDate = rs.getDate(5);
+				System.out.println("Due date is " + dueDate + " and you returned this book on " + returnDate);
+				if (returnDate.after(dueDate)) {
+					// fine this person
+					JOptionPane.showMessageDialog(null, "You will get fined");
+					}
+				}
+				// TODO check for hold on the book
+				
+				
+			}
+		// Close statement
+			st.close();	
+		} catch (SQLException e) {
+			System.out.println("Processing return failed");
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	/**
+	 * Search for books using keyword search on titles, authors and subjects. The result is a list of books
+	 * that match the search together with the number of copies that are in and out.
+	 * @param keyword
+	 * @param author
+	 * @param subject
+	 */
+	
 	public void searchForItem(String keyword, String author, String subject){
 		try {
 			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			String query = "SELECT b.call_number, c.copy_no, b.isbn, b.title, b.main_author, b.publisher, b.year, c.status " +
 					"FROM book b, book_copy c " +
 					"WHERE b.call_number = c.call_number AND b.call_number IN " +
-						"(SELECT b.call_number FROM book b, has_subject s, has_author a WHERE ";
+					"(SELECT b.call_number FROM book b, has_subject s, has_author a WHERE ";
 
 			if(!keyword.isEmpty())
 				query += "(lower(b.title) LIKE lower('%" + keyword + "%')) ";
@@ -496,11 +569,11 @@ public class DataBaseConnection {
 			/* Can't get it to also search additional authors*/
 			if(!author.isEmpty() && !keyword.isEmpty())
 				query += "AND (lower(b.main_author) LIKE lower('%" + author + "%')) " ;
-						//"(b.call_number = s.call_number AND lower(a.name) LIKE lower('%" + author + "%')))";
+			//"(b.call_number = s.call_number AND lower(a.name) LIKE lower('%" + author + "%')))";
 			else if(!author.isEmpty() && keyword.isEmpty())
 				query += "(lower(b.main_author) LIKE lower('%" + author + "%')) ";
-						//"(b.call_number = a.call_number AND lower(a.name) LIKE lower('%" + author + "%'))) ";
-			
+			//"(b.call_number = a.call_number AND lower(a.name) LIKE lower('%" + author + "%'))) ";
+
 			if(!subject.isEmpty() && (!keyword.isEmpty() || !author.isEmpty()))
 				query += "AND (b.call_number = s.call_number AND lower(s.subject) LIKE lower('%" + subject + "%'))";
 			else if (!subject.isEmpty() && (keyword.isEmpty() && author.isEmpty()))
@@ -567,19 +640,56 @@ public class DataBaseConnection {
 
 	}
 
-	public Session getSession() {
-		return session;
+	/**
+	 * 
+	 * @param username
+	 * @param password
+	 */
+	public void payFine(String string){
+
+	}
+
+	public void checkFines() {
+		String bIDstr = null;
+
+		if (null == globalbID){
+			JOptionPane.showMessageDialog(null, "Please log in first");
+			return;
+		}else{
+			bIDstr = globalbID;
+		}
+
+
+		try {
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+
+			ResultSet rs;
+
+			String fineQuery = " SELECT bing.call_number, bk.title, f.amount, f.issueddate " +
+					" FROM fine f, borrowing bing, book bk" +
+					" WHERE f.borid = bing.borid AND bing.call_number = bk.call_number AND bing.bid = "  + bIDstr + 
+					" AND f.paidDate is NULL ";
+
+			rs = stm.executeQuery(fineQuery);
+			Result r = new Result(rs);
+			session.loadResultPanel(r);
+			stm.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public void login(String username, String password) {
-
+		
 		Integer usernameInt = null;
 		try { 
 			usernameInt = Integer.parseInt(username); 
-		} catch(NumberFormatException e) { 
-			JOptionPane.showMessageDialog(null, "Username must be an integer");
-			return; 
-		}
+	    } catch(NumberFormatException e) { 
+	    	JOptionPane.showMessageDialog(null, "Username must be an integer");
+	    	return; 
+	    }
 		if (usernameInt == null){
 			JOptionPane.showMessageDialog(null, "Username must be an integer");
 			return;
@@ -596,8 +706,8 @@ public class DataBaseConnection {
 
 			String userQuery = " SELECT bid " +
 					" FROM borrower " +
-					" WHERE bid = " + usernameInt.toString() + 
-					" AND password = '" + password + "'" ;
+					" WHERE sinOrStNo = " + usernameInt.toString() + 
+					" AND password = " + password ;
 
 			rs = stm.executeQuery(userQuery);
 			if(rs!=null && rs.next()){
@@ -609,19 +719,22 @@ public class DataBaseConnection {
 				JOptionPane.showMessageDialog(null, "Username/password combination does not exist");
 			}
 			stm.close();
-
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void logout() {
-		globalbID = null;
-		// TODO clear results on logout
-
-		//		ResultSet rs = null;
-		//		session.loadResultPanel(new Result(rs));
 		JOptionPane.showMessageDialog(null, "Logged out");
+		//TODO clear results on logout
+		globalbID = null;
+	}
+
+
+
+	public Session getSession() {
+		return session;
 	}
 
 	public void checkOverdueItems() {
