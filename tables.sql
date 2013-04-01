@@ -66,6 +66,9 @@ create table hold_request (
 	call_number varchar(25),
 	issuedDate date );
 
+ALTER TABLE hold_request
+ADD CONSTRAINT hold_constraint UNIQUE (bid,call_number);
+
 drop sequence hid_counter;
 
 create sequence hid_counter
@@ -106,3 +109,4 @@ insert into borrower_type values
 insert into borrower_type values
 	('staff', 6);
 
+commit

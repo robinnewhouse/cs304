@@ -48,7 +48,7 @@ public class BorrowerInfo {
 		txt.setPreferredSize(new Dimension(250, 60));
 
 		//Labels
-		Label labelUsername = new Label("BID: ");
+		Label labelUsername = new Label("SIN/SN: ");
 		Label labelPassword = new Label("Password: ");
 
 		//Fields

@@ -54,7 +54,7 @@ public class DataBaseConnection {
 		//Get the Connection
 		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -271,17 +271,17 @@ public class DataBaseConnection {
 		Date todaySQL = new Date(today);
 		try {
 			String query = "SELECT bid, emailAddress FROM borrower WHERE bid IN ";
-			
+
 			if(borrowers.equals("()"))
 				query +="(SELECT bid FROM borrowing WHERE inDate < '" + todaySQL + "')";
 			else
 				query += borrowers;
-			
+
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
 			rs = stm.executeQuery(query);
-			
+
 			if(rs.next())
 				JOptionPane.showMessageDialog(null, "Sent automated emails to the following borrowers:");
 			else
@@ -292,10 +292,9 @@ public class DataBaseConnection {
 			//Close statement
 			stm.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	/**
@@ -320,13 +319,42 @@ public class DataBaseConnection {
 			// get issueDate
 			Calendar calendar = Calendar.getInstance();
 			long jDate = calendar.getTimeInMillis();
-			Date outDate = new Date(jDate);
+			Date issueDate = new Date(jDate);
 
-			String query = "INSERT INTO hold_request (hid,bid,call_number,issuedDate) VALUES (hid_counter.nextval,?,?,?)";
-			ps = con.prepareStatement(query);
+			String query1 = "SELECT copy_no FROM book_copy " +
+					"WHERE call_number = '" + callNumStr + "'";
+			ps = con.prepareStatement(query1);
+			ResultSet result = ps.executeQuery();
+			boolean copyExists = false;
+			if(result.next()){
+				copyExists = true;
+			}
+			if(false == copyExists){ // If book doesn't exist
+				JOptionPane.showMessageDialog(null, "Call number does not exist");
+				return;
+			}
+
+			
+			String query2 = "SELECT hid FROM hold_request " +
+					"WHERE call_number = '" + callNumStr + "'" +
+							"AND bid = '" + bIDstr +"'";
+			ps = con.prepareStatement(query2);
+			ResultSet result2 = ps.executeQuery();
+			boolean isHeld = false;
+			if(result2.next()){
+				isHeld = true;
+			} 
+				if(true == isHeld){ // If hold already exists
+				JOptionPane.showMessageDialog(null, "Hold already exists for bid call_number combination");
+				return;
+			}
+			// if others pass
+			String query3 = "INSERT INTO hold_request (hid,bid,call_number,issuedDate) " +
+					"VALUES (hid_counter.nextval,?,?,?)";
+			ps = con.prepareStatement(query3);
 			ps.setString(1, bIDstr);
 			ps.setString(2, callNumStr);
-			ps.setDate(3, outDate);
+			ps.setDate(3, issueDate);
 			int rs2 = ps.executeUpdate();
 			if(rs2 > 0)
 				JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Hold table");
@@ -498,7 +526,7 @@ public class DataBaseConnection {
 						// Update book copy status to out
 						query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
 						ps.execute(query);
-						
+
 						// Check to see if there is a hold request on this copy from this borrower
 						query = "SELECT * FROM hold_request WHERE call_number = '"+ callnums[i] + "' and bid = '" + bid + "'";
 						boolean b = ps.execute(query);
@@ -507,7 +535,7 @@ public class DataBaseConnection {
 							//Delete the hold request
 							Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 							int rs4 = st4.executeUpdate("DELETE FROM hold_request WHERE call_number = '" + callnums[i] + "' and bid = '" + bid + "'");
-							
+
 							if (rs4 > 0) {
 								JOptionPane.showMessageDialog(null, "You placed a hold request on " + callnums[i] + ". It is now deleted.");
 							} 
@@ -546,7 +574,7 @@ public class DataBaseConnection {
 		}
 	}
 
-	
+
 	/**
 	 * Processes a return. When  an item is returned, the clerk records the return by providing the item's
 	 * catalogue number. The system determines the borrower who had borrowed the item and records that the
@@ -558,64 +586,64 @@ public class DataBaseConnection {
 		if (callnum.length != 2) {
 			JOptionPane.showMessageDialog(null, "Please add one callnumber and copy number at a time");
 		}
-		
+
 		try {
 			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs = st.executeQuery("SELECT * FROM borrowing WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
 			Result r = new Result(rs);
-			
+
 			session.loadResultPanel(r);
 			con.commit();
-		
+
 			if (rs != null) { // if the above query returns a valid tuple
 				Statement st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				int rs2 = st2.executeUpdate("UPDATE book_copy SET status = 'in' WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
-				
+
 				String notifyClerk;
 				if (rs2 > 0) {
 					notifyClerk = "Processed return for book: " + callnum[0] + " copy no: " + callnum[1];
 				} else {
 					notifyClerk = "Return did not process successfully";
 				}
-				
+
 				JOptionPane.showMessageDialog(null, notifyClerk);
-				
+
 				// Assess fine
 				Calendar calendar = Calendar.getInstance();
 				long today = calendar.getTimeInMillis();
 				Date returnDate = new Date(today);
-								
+
 				while (rs.next()) {
-				System.out.println("While (rs.next()) block is executed");
-				Date dueDate = rs.getDate(5);
-				System.out.println("Due date is " + dueDate + " and you returned this book on " + returnDate);
-				if (returnDate.after(dueDate)) {
-					// fine this person
-					JOptionPane.showMessageDialog(null, "You will get fined");
+					System.out.println("While (rs.next()) block is executed");
+					Date dueDate = rs.getDate(5);
+					System.out.println("Due date is " + dueDate + " and you returned this book on " + returnDate);
+					if (returnDate.after(dueDate)) {
+						// fine this person
+						JOptionPane.showMessageDialog(null, "You will get fined");
 					}
 				}
 				// TODO check for hold on the book
 				Statement st3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				ResultSet rs3 = st3.executeQuery("SELECT * FROM hold_request WHERE call_number = '" + callnum[0] + "'");
 				Result r3 = new Result(rs3);
-				
+
 				session.loadResultPanel(r3);
 				con.commit();
-				
+
 				if (rs3 != null) {
 					JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
 				}
 			}
-		// Close statement
+			// Close statement
 			st.close();	
 		} catch (SQLException e) {
 			System.out.println("Processing return failed");
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Search for books using keyword search on titles, authors and subjects. The result is a list of books
 	 * that match the search together with the number of copies that are in and out.
@@ -623,7 +651,7 @@ public class DataBaseConnection {
 	 * @param author
 	 * @param subject
 	 */
-	
+
 	public void searchForItem(String keyword, String author, String subject){
 		try {
 			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -735,13 +763,12 @@ public class DataBaseConnection {
 			JOptionPane.showMessageDialog(null, "Fine must be an integer");
 			return;
 		}
-		
+
 		// get issueDate
 		Calendar calendar = Calendar.getInstance();
 		long jDate = calendar.getTimeInMillis();
-		Date jdateNow = new Date(jDate);
 		java.sql.Date dateNow = new java.sql.Date(jDate);
-				
+
 		Integer rowCount = 0;
 
 		System.out.println("fineint: " + paymentInt.toString());
@@ -758,7 +785,7 @@ public class DataBaseConnection {
 					" AND f.paidDate is NULL ";
 
 			PreparedStatement ps;
-			
+
 			rs = stm.executeQuery(fineQuery);
 			while (rs.next()){
 				Integer fineAmount = rs.getInt("amount");
@@ -768,11 +795,11 @@ public class DataBaseConnection {
 					paymentInt = paymentInt - fineAmount;
 					System.out.println("dateNow: " + dateNow);
 					System.out.println("issuedDate: " +  issuedDate);
-				
+
 					String updateQuery = " UPDATE fine " +
 							" SET paidDate = " + dateNow +
 							" WHERE fid = " + fineId.toString();
-					
+
 					String query = "UPDATE fine SET paidDate = ? where fid = ? ";
 					ps = con.prepareStatement(query);
 
@@ -786,20 +813,20 @@ public class DataBaseConnection {
 					checkFines();
 					break;
 				}
-				
+
 			}
-		
-		if(rowCount > 0)
-		{
-			JOptionPane.showMessageDialog(null,"Successfully paid " + rowCount + "fines");
-		}
+
+			if(rowCount > 0)
+			{
+				JOptionPane.showMessageDialog(null,"Successfully paid " + rowCount + "fines");
+			}
 
 
-//			rs.first();
-//			Result r = new Result(rs);
-//			rs.getInt("amount");
-//			Result r = new Result(rs);
-//			session.loadResultPanel(r);
+			//			rs.first();
+			//			Result r = new Result(rs);
+			//			rs.getInt("amount");
+			//			Result r = new Result(rs);
+			//			session.loadResultPanel(r);
 			stm.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -846,15 +873,16 @@ public class DataBaseConnection {
 		try { 
 			usernameInt = Integer.parseInt(username); 
 		} catch(NumberFormatException e) { 
-			JOptionPane.showMessageDialog(null, "Username must be an integer");
+			JOptionPane.showMessageDialog(null, "SIN or Student Number must be an integer");
 			return; 
 		}
 		if (usernameInt == null){
-			JOptionPane.showMessageDialog(null, "Username must be an integer");
+			JOptionPane.showMessageDialog(null, "SIN or Student Number must be an integer");
 			return;
 		}
 
-
+		String sqlPassword = "\'" + password + "\'";
+		System.out.println(sqlPassword);
 		try {
 
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -866,7 +894,7 @@ public class DataBaseConnection {
 			String userQuery = " SELECT bid " +
 					" FROM borrower " +
 					" WHERE sinOrStNo = " + usernameInt.toString() + 
-					" AND password = " + password ;
+					" AND password = " + sqlPassword ;
 
 			rs = stm.executeQuery(userQuery);
 			if(rs!=null && rs.next()){
