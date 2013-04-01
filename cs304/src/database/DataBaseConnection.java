@@ -534,8 +534,17 @@ public class DataBaseConnection {
 					}
 				}
 				// TODO check for hold on the book
+				Statement st3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs3 = st3.executeQuery("SELECT * FROM hold_request WHERE call_number = '" + callnum[0] + "'");
+				Result r3 = new Result(rs3);
 				
+				session.loadResultPanel(r3);
+				con.commit();
 				
+				if (rs3 != null) {
+					JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
+					//Delete the hold request?
+				}
 			}
 		// Close statement
 			st.close();	
