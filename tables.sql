@@ -7,7 +7,7 @@ create table borrower (
 	address varchar(25),
 	phone int null,
 	emailAddress varchar(50), 
-	sinOrStNo int null,
+	sinOrStNo int not null UNIQUE,
 	expiryDate date,
 	type varchar(15) );
 
@@ -65,6 +65,12 @@ create table hold_request (
 	bid int,
 	call_number varchar(25),
 	issuedDate date );
+
+drop sequence hid_counter;
+
+create sequence hid_counter
+minvalue 1000 
+start with 1000;
 
 drop table borrowing;
 
