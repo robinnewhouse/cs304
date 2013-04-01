@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.print.attribute.standard.Finishings;
 import javax.swing.JOptionPane;
 
 import connection.Session;
@@ -315,8 +316,6 @@ public class DataBaseConnection {
 
 		PreparedStatement ps;
 		try{
-			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
-					ResultSet.CONCUR_UPDATABLE);
 
 			// get issueDate
 			Calendar calendar = Calendar.getInstance();
@@ -499,6 +498,21 @@ public class DataBaseConnection {
 						// Update book copy status to out
 						query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
 						ps.execute(query);
+						
+						// Check to see if there is a hold request on this copy from this borrower
+						query = "SELECT * FROM hold_request WHERE call_number = '"+ callnums[i] + "' and bid = '" + bid + "'";
+						boolean b = ps.execute(query);
+						System.out.println("Did BID place a hold request on this book? " + b);
+						if (b) {
+							//Delete the hold request
+							Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+							int rs4 = st4.executeUpdate("DELETE FROM hold_request WHERE call_number = '" + callnums[i] + "' and bid = '" + bid + "'");
+							
+							if (rs4 > 0) {
+								JOptionPane.showMessageDialog(null, "You placed a hold request on " + callnums[i] + ". It is now deleted.");
+							} 
+							con.commit();
+						}
 					}
 					else 
 						JOptionPane.showMessageDialog(null, "BID does not exist. Please try again");
@@ -581,8 +595,16 @@ public class DataBaseConnection {
 					}
 				}
 				// TODO check for hold on the book
+				Statement st3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs3 = st3.executeQuery("SELECT * FROM hold_request WHERE call_number = '" + callnum[0] + "'");
+				Result r3 = new Result(rs3);
 				
+				session.loadResultPanel(r3);
+				con.commit();
 				
+				if (rs3 != null) {
+					JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
+				}
 			}
 		// Close statement
 			st.close();	
@@ -692,7 +714,97 @@ public class DataBaseConnection {
 	 * @param username
 	 * @param password
 	 */
-	public void payFine(String string){
+	public void payFine(String paymentString){
+		String bIDstr = null;
+
+		if (null == globalbID){
+			JOptionPane.showMessageDialog(null, "Please log in first");
+			return;
+		}else{
+			bIDstr = globalbID;
+		}
+
+		Integer paymentInt = null;
+		try { 
+			paymentInt = Integer.parseInt(paymentString); 
+		} catch(NumberFormatException e) { 
+			JOptionPane.showMessageDialog(null, "Fine must be an integer");
+			return; 
+		}
+		if (paymentInt == null){
+			JOptionPane.showMessageDialog(null, "Fine must be an integer");
+			return;
+		}
+		
+		// get issueDate
+		Calendar calendar = Calendar.getInstance();
+		long jDate = calendar.getTimeInMillis();
+		Date jdateNow = new Date(jDate);
+		java.sql.Date dateNow = new java.sql.Date(jDate);
+				
+		Integer rowCount = 0;
+
+		System.out.println("fineint: " + paymentInt.toString());
+
+		try {
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+
+			ResultSet rs;
+
+			String fineQuery = " SELECT * " +
+					" FROM fine f, borrowing bing, book bk" +
+					" WHERE f.borid = bing.borid AND bing.call_number = bk.call_number AND bing.bid = "  + bIDstr + 
+					" AND f.paidDate is NULL ";
+
+			PreparedStatement ps;
+			
+			rs = stm.executeQuery(fineQuery);
+			while (rs.next()){
+				Integer fineAmount = rs.getInt("amount");
+				Integer fineId = rs.getInt("fid");
+				Date issuedDate = rs.getDate("issuedDate");
+				if (fineAmount < paymentInt){
+					paymentInt = paymentInt - fineAmount;
+					System.out.println("dateNow: " + dateNow);
+					System.out.println("issuedDate: " +  issuedDate);
+				
+					String updateQuery = " UPDATE fine " +
+							" SET paidDate = " + dateNow +
+							" WHERE fid = " + fineId.toString();
+					
+					String query = "UPDATE fine SET paidDate = ? where fid = ? ";
+					ps = con.prepareStatement(query);
+
+					ps.setDate(1, dateNow);
+					ps.setInt(2, fineId);
+					rowCount += ps.executeUpdate();
+					System.out.println(rowCount);
+
+				}
+				else{ 
+					checkFines();
+					break;
+				}
+				
+			}
+		
+		if(rowCount > 0)
+		{
+			JOptionPane.showMessageDialog(null,"Successfully paid " + rowCount + "fines");
+		}
+
+
+//			rs.first();
+//			Result r = new Result(rs);
+//			rs.getInt("amount");
+//			Result r = new Result(rs);
+//			session.loadResultPanel(r);
+			stm.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 
 	}
 
@@ -713,7 +825,7 @@ public class DataBaseConnection {
 
 			ResultSet rs;
 
-			String fineQuery = " SELECT bing.call_number, bk.title, f.amount, f.issueddate " +
+			String fineQuery = " SELECT bing.call_number, bk.title, f.amount, f.issueddate, f.paiddate " +
 					" FROM fine f, borrowing bing, book bk" +
 					" WHERE f.borid = bing.borid AND bing.call_number = bk.call_number AND bing.bid = "  + bIDstr + 
 					" AND f.paidDate is NULL ";
@@ -729,14 +841,14 @@ public class DataBaseConnection {
 	}
 
 	public void login(String username, String password) {
-		
+
 		Integer usernameInt = null;
 		try { 
 			usernameInt = Integer.parseInt(username); 
-	    } catch(NumberFormatException e) { 
-	    	JOptionPane.showMessageDialog(null, "Username must be an integer");
-	    	return; 
-	    }
+		} catch(NumberFormatException e) { 
+			JOptionPane.showMessageDialog(null, "Username must be an integer");
+			return; 
+		}
 		if (usernameInt == null){
 			JOptionPane.showMessageDialog(null, "Username must be an integer");
 			return;
@@ -766,7 +878,7 @@ public class DataBaseConnection {
 				JOptionPane.showMessageDialog(null, "Username/password combination does not exist");
 			}
 			stm.close();
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
