@@ -243,7 +243,7 @@ public class ClerkInfo {
 		Label labelReturn = new Label("Callnumber: ");
 
 		//Fields
-		JTextField fieldReturn = new JTextField(15);
+		final JTextField fieldReturn = new JTextField(15);
 
 		//Text
 		txt = new Text();
@@ -255,7 +255,20 @@ public class ClerkInfo {
 
 		//Return Button
 		button = new JButton("Return");
-
+		
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//pass card number and call number values
+				String callnum = fieldReturn.getText();
+				String[] callnums = callnum.split(" ");
+				for (int i = 0; i < callnums.length; i++) {
+					System.out.println(callnums[i]);
+				}
+				db.processReturn(callnums);
+			}
+		});
+		
 		//Label Panel
 		labelPanel = new JPanel(new GridLayout(1,1,0,16));
 		labelPanel.add(labelReturn);
@@ -291,7 +304,7 @@ public class ClerkInfo {
 	}
 
 	public JPanel overduePanel() {
-
+		
 		//Text
 		txt = new Text();
 		txt.setText("Please click 'Overdue Items' button to see all items that are overdue");
@@ -299,7 +312,15 @@ public class ClerkInfo {
 
 		//Check overdue items button
 		button = new JButton("Overdue Items");
+		button.addActionListener(new ActionListener(){
 
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				db.checkOverdueItems();
+			}
+		});
+			
 		//Panel
 		fieldPanel = new JPanel();
 		fieldPanel.setLayout(new GridBagLayout());

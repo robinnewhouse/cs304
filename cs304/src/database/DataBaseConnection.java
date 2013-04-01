@@ -54,7 +54,7 @@ public class DataBaseConnection {
 		//Get the Connection
 		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_l5y7", "a74677097");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -482,6 +482,87 @@ public class DataBaseConnection {
 		}
 	}
 
+	
+	/**
+	 * Processes a return. When  an item is returned, the clerk records the return by providing the item's
+	 * catalogue number. The system determines the borrower who had borrowed the item and records that the
+	 * the item is "in".  If the item is overdue, a fine is assessed for the borrower.  If there is a hold
+	 * request for this item by another borrower, the item is registered as "on hold" and a message is send
+	 * to the borrower who made the hold request.
+	 */
+	public void processReturn(String[] callnum) {
+		if (callnum.length != 2) {
+			JOptionPane.showMessageDialog(null, "Please add one callnumber and copy number at a time");
+		}
+		
+		try {
+			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			ResultSet rs = st.executeQuery("SELECT * FROM borrowing WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
+			Result r = new Result(rs);
+			
+			session.loadResultPanel(r);
+			con.commit();
+		
+			
+			
+			if (rs != null) { // if the above query returns a valid tuple
+				Statement st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				int rs2 = st2.executeUpdate("UPDATE book_copy SET status = 'in' WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
+				
+				String notifyClerk;
+				if (rs2 > 0) {
+					notifyClerk = "Processed return for book: " + callnum[0] + " copy no: " + callnum[1];
+				} else {
+					notifyClerk = "Return did not process successfully";
+				}
+				
+				JOptionPane.showMessageDialog(null, notifyClerk);
+				
+				// Assess fine
+				Calendar calendar = Calendar.getInstance();
+				long today = calendar.getTimeInMillis();
+				Date returnDate = new Date(today);
+								
+				while (rs.next()) {
+				System.out.println("While (rs.next()) block is executed");
+				Date dueDate = rs.getDate(5);
+				System.out.println("Due date is " + dueDate + " and you returned this book on " + returnDate);
+				if (returnDate.after(dueDate)) {
+					// fine this person
+					JOptionPane.showMessageDialog(null, "You will get fined");
+					}
+				}
+				// TODO check for hold on the book
+				Statement st3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs3 = st3.executeQuery("SELECT * FROM hold_request WHERE call_number = '" + callnum[0] + "'");
+				Result r3 = new Result(rs3);
+				
+				session.loadResultPanel(r3);
+				con.commit();
+				
+				if (rs3 != null) {
+					JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
+					//Delete the hold request?
+				}
+			}
+		// Close statement
+			st.close();	
+		} catch (SQLException e) {
+			System.out.println("Processing return failed");
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	/**
+	 * Search for books using keyword search on titles, authors and subjects. The result is a list of books
+	 * that match the search together with the number of copies that are in and out.
+	 * @param keyword
+	 * @param author
+	 * @param subject
+	 */
+	
 	public void searchForItem(String keyword, String author, String subject){
 		try {
 			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -752,6 +833,25 @@ public class DataBaseConnection {
 
 	public Session getSession() {
 		return session;
+	}
+
+	public void checkOverdueItems() {
+		Calendar calendar = Calendar.getInstance();
+		long today = calendar.getTimeInMillis();
+		Date todaySQL = new Date(today);
+		
+		try {
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			String query = "SELECT call_number, inDate FROM borrowing WHERE inDate < '" + todaySQL + "'";
+			System.out.println(todaySQL);
+			ResultSet rs = stm.executeQuery(query);
+			Result result = new Result(rs);
+			session.loadResultPanel(result);
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
