@@ -450,6 +450,21 @@ public class DataBaseConnection {
 						// Update book copy status to out
 						query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
 						ps.execute(query);
+						
+						// Check to see if there is a hold request on this copy from this borrower
+						query = "SELECT * FROM hold_request WHERE call_number = '"+ callnums[i] + "' and bid = '" + bid + "'";
+						boolean b = ps.execute(query);
+						System.out.println("Did BID place a hold request on this book? " + b);
+						if (b) {
+							//Delete the hold request
+							Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+							int rs4 = st4.executeUpdate("DELETE FROM hold_request WHERE call_number = '" + callnums[i] + "' and bid = '" + bid + "'");
+							
+							if (rs4 > 0) {
+								JOptionPane.showMessageDialog(null, "You placed a hold request on " + callnums[i] + ". It is now deleted.");
+							} 
+							con.commit();
+						}
 					}
 					else 
 						JOptionPane.showMessageDialog(null, "BID does not exist. Please try again");
@@ -543,7 +558,6 @@ public class DataBaseConnection {
 				
 				if (rs3 != null) {
 					JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
-					//Delete the hold request?
 				}
 			}
 		// Close statement
