@@ -113,4 +113,4 @@ insert into borrower_type values
 insert into borrower_type values
 	('staff', 6);
 
-commit
+commit;
