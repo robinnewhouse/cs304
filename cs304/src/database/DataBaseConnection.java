@@ -5,16 +5,12 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
-import javax.print.attribute.standard.Finishings;
 import javax.swing.JOptionPane;
 
 import connection.Session;
@@ -72,23 +68,32 @@ public class DataBaseConnection {
 		PreparedStatement ps;
 		int rowCount = 0;
 		try {
-			String query = "INSERT INTO book VALUES (?,?,?,?,?,?)";
+			String query = "SELECT * FROM book WHERE call_number = '" + varargs[0] + "'";
 			ps = con.prepareStatement(query);
-			ps.setString(1,varargs[0]);
-			ps.setString(2,varargs[1]);
-			ps.setString(3,varargs[2]);
-			ps.setString(4,varargs[3]);
-			ps.setString(5,varargs[4]);
-			ps.setInt(6,Integer.parseInt(varargs[5]));
-			//Execute the insert
-			rowCount += ps.executeUpdate();
-
-			if(rowCount > 0)
-				JOptionPane.showMessageDialog(null, "Added entry to Book table");
-			//Commit changes and close prepared statements
-			con.commit();
-			ps.close();
-
+			ResultSet result = ps.executeQuery();
+			boolean bookExists = false;
+			if(result.next())
+				bookExists = true;
+			
+			// Don't insert book if already exists in book table
+			if(bookExists == false){
+				query = "INSERT INTO book VALUES (?,?,?,?,?,?)";
+				ps = con.prepareStatement(query);
+				ps.setString(1,varargs[0]);
+				ps.setString(2,varargs[1]);
+				ps.setString(3,varargs[2]);
+				ps.setString(4,varargs[3]);
+				ps.setString(5,varargs[4]);
+				ps.setInt(6,Integer.parseInt(varargs[5]));
+				//Execute the insert
+				rowCount += ps.executeUpdate();
+	
+				if(rowCount > 0)
+					JOptionPane.showMessageDialog(null, "Added entry to Book table");
+				//Commit changes and close prepared statements
+				con.commit();
+				ps.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -213,37 +218,47 @@ public class DataBaseConnection {
 		Date sqlDate = new Date(calendar.getTimeInMillis());
 
 		try {
-			ps = con.prepareStatement("INSERT INTO borrower (bid, name, password, address, phone, " +
-					"emailAddress, sinOrStNo, expiryDate, type) " +
-					"VALUES (bid.nextval,?,?,?,?,?,?,?,?)");
-			ps.setString(1,varargs[0]);
-			ps.setString(2,varargs[1]);
-			ps.setString(3,varargs[2]);
-			ps.setLong(4,Long.parseLong(phone));
-			ps.setString(5,varargs[4]);
-			ps.setLong(6,Long.parseLong(varargs[5]));
-			ps.setDate(7,sqlDate);
-			ps.setString(8,varargs[7]);
-
-			//Execute the statement
-			int rowCount = ps.executeUpdate();
-			if(rowCount > 0){
-				JOptionPane.showMessageDialog(null,"Added " + rowCount + " rows to Borrower Table");
-			}
-
-			ps = con.prepareStatement("SELECT bid.currval FROM dual");
+			ps = con.prepareStatement("SELECT * FROM borrower WHERE sinOrStNo = " + varargs[6]);
 			ResultSet result = ps.executeQuery();
-			result.next();
-			int bid = 0;
-			bid = result.getInt(1);
-			if(bid != 0)
-				JOptionPane.showMessageDialog(null,"Borrower's BID is: " + bid);
-
-			//Commit changes
-			con.commit();
-
-			//Close prepared statement
-			ps.close();
+			boolean borrowerExists = false;
+			if(result.next()){
+				borrowerExists = true;
+				JOptionPane.showMessageDialog(null, "Borrower with sinOrStNo " + varargs[6] + " already exists");
+			}
+			
+			if(borrowerExists == false){
+				ps = con.prepareStatement("INSERT INTO borrower (bid, name, password, address, phone, " +
+						"emailAddress, sinOrStNo, expiryDate, type) " +
+						"VALUES (bid.nextval,?,?,?,?,?,?,?,?)");
+				ps.setString(1,varargs[0]);
+				ps.setString(2,varargs[1]);
+				ps.setString(3,varargs[2]);
+				ps.setLong(4,Long.parseLong(phone));
+				ps.setString(5,varargs[4]);
+				ps.setLong(6,Long.parseLong(varargs[5]));
+				ps.setDate(7,sqlDate);
+				ps.setString(8,varargs[7]);
+	
+				//Execute the statement
+				int rowCount = ps.executeUpdate();
+				if(rowCount > 0){
+					JOptionPane.showMessageDialog(null,"Added " + rowCount + " rows to Borrower Table");
+				}
+	
+				ps = con.prepareStatement("SELECT bid.currval FROM dual");
+				result = ps.executeQuery();
+				result.next();
+				int bid = 0;
+				bid = result.getInt(1);
+				if(bid != 0)
+					JOptionPane.showMessageDialog(null,"Borrower's BID is: " + bid);
+				
+				//Commit changes
+				con.commit();
+	
+				//Close prepared statement
+				ps.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
