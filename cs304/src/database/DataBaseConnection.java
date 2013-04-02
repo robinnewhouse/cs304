@@ -10,10 +10,6 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-<<<<<<< HEAD
-=======
-
->>>>>>> branch 'master' of https://github.com/Cletus-Doy-Shinda/cs304.git
 import javax.swing.JOptionPane;
 
 import connection.Session;
