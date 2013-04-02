@@ -10,7 +10,6 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
 import javax.swing.JOptionPane;
 
 import connection.Session;
@@ -48,9 +47,8 @@ public class DataBaseConnection {
 		}
 
 		//Get the Connection
-		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -63,6 +61,8 @@ public class DataBaseConnection {
 	 * @param varargs
 	 * 		a list of strings containing the callNumber, ISBN, Title,
 	 * 		MainAuthor, Publisher and year of a book, in that order. 
+	 * 
+	 * @author Abe Friesen
 	 */
 	public void insertBook(String... varargs) {
 		PreparedStatement ps;
@@ -138,6 +138,8 @@ public class DataBaseConnection {
 	 * 		The subjects associated with the callNumber;
 	 * @param
 	 * 		The callNumber for the book;
+	 * 
+	 * @author Abe Friesen
 	 */
 	public void insertSubject(String[] subjects, String callNumber) {
 
@@ -165,6 +167,8 @@ public class DataBaseConnection {
 	 * 
 	 * @param varargs
 	 * 		The callNumber and Author name associated with it, in that order
+	 * 
+	 * @author Abe Friesen
 	 */
 	public void insertAuthors(String[] authors, String callNumber) {
 
@@ -198,6 +202,8 @@ public class DataBaseConnection {
 	 * 		a list of strings containing the bid, password, name, address,
 	 * 		phone number, email address, sin or student #, expiry date, and type
 	 * 		of a borrower, in that order
+	 * 
+	 * @author Abe Friesen
 	 */
 	public void insertBorrower(String... varargs) {
 
@@ -268,7 +274,6 @@ public class DataBaseConnection {
 		Calendar calendar = Calendar.getInstance();
 		long today = calendar.getTimeInMillis();
 		Date todaySQL = new Date(today);
-		System.out.println(todaySQL);
 		try {
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
@@ -289,7 +294,7 @@ public class DataBaseConnection {
 			String query = "SELECT bid, emailAddress FROM borrower WHERE bid IN ";
 
 			if(borrowers.equals("()"))
-				query +="(SELECT bid FROM borrowing WHERE inDate < '" + todaySQL + "')";
+				query +="(SELECT bid FROM borrowing WHERE inDate < to_date('"+todaySQL+"','yyyy-mm-dd'))";
 			else
 				query += borrowers;
 
@@ -350,7 +355,6 @@ public class DataBaseConnection {
 				return;
 			}
 
-			
 			String query2 = "SELECT hid FROM hold_request " +
 					"WHERE call_number = '" + callNumStr + "'" +
 							"AND bid = '" + bIDstr +"'";
@@ -389,6 +393,8 @@ public class DataBaseConnection {
 	 * 
 	 * @param subject
 	 * 		Possible parameter to search subject from has_subject table
+	 * 
+	 * @author Abe Friesen
 	 */
 	public void bookReport(String... varargs) {
 
@@ -430,15 +436,16 @@ public class DataBaseConnection {
 	/**
 	 * Generates a report for the popular items borrowed in a given year
 	 * 
-	 * @param varargs
-	 * 		Strings containing the year, and the number of results to query for, in that order.
+	 * @param year, n
+	 * 		Strings containing the year, and the number of results to query for
+	 * 
+	 * @author Abe Friesen
 	 */
 	public void popularReport(String year, String n) {
 		try {
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
-
 			rs = stm.executeQuery("select * from (select call_number, count(call_number) as times_rented from borrowing " +
 					"where outDate like '%" + year + "%' group by call_number) where rownum <= " +
 					n);
@@ -642,7 +649,7 @@ public class DataBaseConnection {
 							System.out.println(rowsUpdated);
 						}
 					}
-					// TODO check for hold on the book
+		
 					Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 					ResultSet rs4 = st4.executeQuery("SELECT * FROM hold_request WHERE call_number = '" + callnum[0] + "'");
 					//Result r3 = new Result(rs3);

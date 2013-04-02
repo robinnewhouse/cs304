@@ -246,29 +246,17 @@ public class BorrowerInfo {
 
 		//Fields
 		final JTextField fieldCallNum = new JTextField(15);
-		fields = new JTextField[3];
-		fields[0] = fieldCallNum;
-
 
 		//Hold Button
 		button = new JButton("Place Hold Request");
 		button.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				boolean fieldsFilledOut = false;
 
-				for(JTextField f : fields){
-					if(!f.getText().isEmpty()){
-						System.out.println("Field filled");
-						fieldsFilledOut = true;
-						break;
-					}		
-				}
-
-				if(fieldsFilledOut == false)
-					JOptionPane.showMessageDialog(null, "At least one field must be filled.");
+				if(fieldCallNum.getText().isEmpty())
+					JOptionPane.showMessageDialog(null, "Please enter a call number.");
 				else{
-					db.insertHold(fieldCallNum.getText().trim());
+					db.insertHold(fieldCallNum.getText());
 				}
 
 
