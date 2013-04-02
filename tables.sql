@@ -100,6 +100,10 @@ create table fine (
 	paidDate date,
 	borid int );
 
+drop sequence fine_counter;
+
+create sequence fine_counter;
+
 insert into borrower_type values
 	('student', 2);
 
