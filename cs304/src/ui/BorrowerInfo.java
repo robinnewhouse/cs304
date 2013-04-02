@@ -339,9 +339,8 @@ public class BorrowerInfo {
 
 		//Fields
 		final JTextField fineField = new JTextField(20);
-		fields = new JTextField[3];
-		fields[0] = fineField;
-		
+		fields = new JTextField[1];
+		fields[0] = fineField;	
 		
 		//Buttons
 		JButton fineButton = new JButton("Pay Fine");
