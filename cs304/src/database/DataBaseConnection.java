@@ -407,7 +407,7 @@ public class DataBaseConnection {
 				ResultSet rs;
 				rs = stm.executeQuery("SELECT call_number, outDate, inDate FROM borrowing " +
 						"WHERE call_number IN (SELECT call_number FROM book_copy WHERE status = 'out' INTERSECT " +
-						"SELECT call_number FROM has_subject WHERE subject = '" + varargs[0] +"') ORDER BY call_number");
+						"SELECT call_number FROM has_subject WHERE subject like '%" + varargs[0] +"%') ORDER BY call_number");
 				Result r = new Result(rs);
 				session.loadResultPanel(r);
 			} catch (SQLException e) {
@@ -504,7 +504,6 @@ public class DataBaseConnection {
 
 						// Get borrower's loan time limit
 						query = "SELECT book_time_limit FROM borrower_type WHERE type = '" + type + "'";
-						System.out.println(query);
 						ps = con.prepareStatement(query);
 						result = ps.executeQuery();
 						int weeks = 0;
@@ -516,7 +515,6 @@ public class DataBaseConnection {
 							weeks = 12;
 						else if (type.contentEquals("staff"))
 							weeks = 6;
-						System.out.println(weeks);
 
 						// Create checkout date and due date according to borrower type
 						Calendar calendar = Calendar.getInstance();
@@ -572,7 +570,6 @@ public class DataBaseConnection {
 				con.commit();
 				ps.close();
 			} catch (SQLException e) {
-				System.out.println("Inserting tuple in borrowing didn't work during iteration ");
 				e.printStackTrace();
 			}
 		}
@@ -646,7 +643,6 @@ public class DataBaseConnection {
 							ps.setDate(1, returnDate);
 							ps.setInt(2, rs3.getInt(1));
 							int rowsUpdated = ps.executeUpdate();
-							System.out.println(rowsUpdated);
 						}
 					}
 		
@@ -708,11 +704,8 @@ public class DataBaseConnection {
 				query += "(b.call_number = s.call_number AND (lower(s.subject) LIKE lower('%" + subject + "%')))";
 			query += ")";
 
-			System.out.println(query);
 			ResultSet result = st.executeQuery(query);
 			Result showrs = new Result(result);
-			if(result.next())
-				System.out.println("JFKLDSJ:FKSL:JSDF");
 			session.loadResultPanel(showrs);
 			con.commit();
 			st.close();
@@ -806,8 +799,6 @@ public class DataBaseConnection {
 
 		Integer rowCount = 0;
 
-		System.out.println("fineint: " + paymentInt.toString());
-
 		try {
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
@@ -828,8 +819,6 @@ public class DataBaseConnection {
 				Date issuedDate = rs.getDate("issuedDate");
 				if (fineAmount < paymentInt){
 					paymentInt = paymentInt - fineAmount;
-					System.out.println("dateNow: " + dateNow);
-					System.out.println("issuedDate: " +  issuedDate);
 
 					String updateQuery = " UPDATE fine " +
 							" SET paidDate = " + dateNow +
@@ -841,7 +830,6 @@ public class DataBaseConnection {
 					ps.setDate(1, dateNow);
 					ps.setInt(2, fineId);
 					rowCount += ps.executeUpdate();
-					System.out.println(rowCount);
 
 				}
 				else{ 
@@ -917,7 +905,6 @@ public class DataBaseConnection {
 		}
 
 		String sqlPassword = "\'" + password + "\'";
-		System.out.println(sqlPassword);
 		try {
 
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
