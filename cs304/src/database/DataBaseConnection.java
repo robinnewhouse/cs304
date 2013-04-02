@@ -639,6 +639,10 @@ public class DataBaseConnection {
 						JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
 					}
 				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Book is already checked in or not a valid copy no/call no");
+				}
 				// Close statement
 				st.close();	
 			} catch (SQLException e) {
