@@ -21,13 +21,13 @@ insert into borrower values
 	'faculty' );
 
 insert into borrowing values 
-	(1111,123,'callno1','copyno1','1111-11-11',null);
+	(1111,123,'callno1','copyno1','2013-01-11','2013-02-01');
 
 insert into borrowing values 
-	(1112,123,'callno2','copyno2','1111-11-11',null);
+	(1112,123,'callno2','copyno2','2013-03-31','2013-04-14');
 
 insert into borrowing values 
-	(1113,123,'callno3','copyno3','1111-11-11','1111-11-12');
+	(1113,123,'callno3','copyno3','2012-11-11','2012-12-22');
 
 insert into borrowing values 
 	(1114,195,'callno4','copyno4','1111-11-11',null);
@@ -56,5 +56,25 @@ insert into book values (
 	'mainauthor3',
 	'publisher3',
 	2003 );
+
+insert into book values (
+	'callno4' ,
+	'isbn4',
+	'title4',
+	'mainauthor4',
+	'publisher4',
+	2004 );
+
+insert into book_copy values (
+	'callno1','copyno1','in');
+
+insert into book_copy values (
+	'callno2','copyno2','in');
+
+insert into book_copy values (
+	'callno3','copyno3','in');
+
+insert into book_copy values (
+	'callno4','copyno4','in');
 
 commit;
