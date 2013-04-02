@@ -831,7 +831,7 @@ public class DataBaseConnection {
 				Integer fineAmount = rs.getInt("amount");
 				Integer fineId = rs.getInt("fid");
 				Date issuedDate = rs.getDate("issuedDate");
-				if (fineAmount < paymentInt){
+				if (fineAmount <= paymentInt){
 					paymentInt = paymentInt - fineAmount;
 
 					String updateQuery = " UPDATE fine " +
