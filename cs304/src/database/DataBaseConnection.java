@@ -840,7 +840,7 @@ public class DataBaseConnection {
 				Integer fineAmount = rs.getInt("amount");
 				Integer fineId = rs.getInt("fid");
 				Date issuedDate = rs.getDate("issuedDate");
-				if (fineAmount < paymentInt){
+				if (fineAmount <= paymentInt){
 					paymentInt = paymentInt - fineAmount;
 					System.out.println("dateNow: " + dateNow);
 					System.out.println("issuedDate: " +  issuedDate);

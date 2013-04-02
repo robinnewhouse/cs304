@@ -20,27 +20,6 @@ insert into borrower values
 	'2020-01-01',
 	'faculty' );
 
-insert into borrower values
-	(bid.nextval,
-	'password',
-	'staffUsername',
-	'Address',
-	5551234567,
-	'email@address.com', 
-	36106094,
-	'2020-01-01',
-	'staff' );
-
-insert into borrower values
-	(bid.nextval,
-	'password',
-	'studentUsername',
-	'Address',
-	5551234567,
-	'email@address.com', 
-	36106094,
-	'2020-01-01',
-	'student' );
 
 insert into book values (
 	'callno1' ,
@@ -72,7 +51,7 @@ insert into book values (
 	'title4',
 	'mainauthor4',
 	'publisher4',
-	2004 ); 
+	2004 );
 
 insert into book_copy values (
 	'callno1','copyno1','in');
@@ -100,31 +79,42 @@ insert into book_copy values (
 
 
 insert into borrowing values 
-	(1111,123,'callno1','copyno1','2013-01-11','2013-02-01');
+	(101,101,'callno1','copyno1','2013-01-11','2013-02-01','in');
 
 insert into borrowing values 
-	(1112,123,'callno2','copyno2','2013-03-31','2013-04-14');
+	(102,101,'callno2','copyno2','2013-03-31','2013-04-14','in');
 
 insert into borrowing values 
-	(1113,123,'callno3','copyno3','2012-11-11','2012-12-22');
+	(103,101,'callno3','copyno3','2012-11-11','2012-12-22','out');
 
 insert into borrowing values 
-	(1114,195,'callno4','copyno4','1111-11-11',null);
+	(104,101,'callno4','copyno4','1111-11-11','2012-12-22','out');
 
 insert into hold_request values
-	(hid_counter.nextval, 101, 'callno1','2013-03-31') 
+	(hid_counter.nextval, 101, 'callno1','2013-03-31') ;
 
 insert into hold_request values
-	(hid_counter.nextval, 101, 'callno2','2013-03-31') 
+	(hid_counter.nextval, 101, 'callno2','2013-03-31') ;
 
 insert into hold_request values
-	(hid_counter.nextval, 101, 'callno3','2013-03-31') 
+	(hid_counter.nextval, 101, 'callno3','2013-03-31') ;
 
 insert into hold_request values
-	(hid_counter.nextval, 101, 'callno1','2013-03-31') 
+	(hid_counter.nextval, 101, 'callno1','2013-03-31') ;
 
 insert into hold_request values
-	(hid_counter.nextval, 102, 'callno1','2013-03-31') 
+	(hid_counter.nextval, 102, 'callno1','2013-03-31') ;
 
+insert into fine values
+	(fine_counter.nextval, 100, '2013-03-31', null, 101) ;
+
+insert into fine values
+	(fine_counter.nextval, 100, '2013-03-31', null, 102);
+
+insert into fine values
+	(fine_counter.nextval, 100, '2013-03-31', null, 103);
+
+insert into fine values
+	(fine_counter.nextval, 100, '2013-03-31', '2013-04-01', 104);
 
 commit;
