@@ -50,7 +50,7 @@ public class DataBaseConnection {
 		//Get the Connection
 		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_h7r8", "a10686129");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -682,7 +682,7 @@ public class DataBaseConnection {
 			String query = "SELECT b.call_number, c.copy_no, b.isbn, b.title, b.main_author, b.publisher, b.year, c.status " +
 					"FROM book b, book_copy c " +
 					"WHERE b.call_number = c.call_number AND b.call_number IN " +
-					"(SELECT b.call_number FROM book b, has_subject s, has_author a WHERE ";
+					"(SELECT b.call_number FROM book b, has_subject s WHERE ";
 
 			if(!keyword.isEmpty())
 				query += "(lower(b.title) LIKE lower('%" + keyword + "%')) ";
@@ -704,6 +704,8 @@ public class DataBaseConnection {
 			System.out.println(query);
 			ResultSet result = st.executeQuery(query);
 			Result showrs = new Result(result);
+			if(result.next())
+				System.out.println("JFKLDSJ:FKSL:JSDF");
 			session.loadResultPanel(showrs);
 			con.commit();
 			st.close();
