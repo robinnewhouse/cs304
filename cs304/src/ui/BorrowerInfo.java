@@ -242,7 +242,7 @@ public class BorrowerInfo {
 		//Labels
 		txt = new Text();
 		txt.setText("Please enter the callnumber of the book to put on hold.");
-		txt.setPreferredSize(new Dimension(250,70));
+		txt.setPreferredSize(new Dimension(250,80));
 
 		//Fields
 		final JTextField fieldCallNum = new JTextField(15);
