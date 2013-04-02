@@ -54,7 +54,7 @@ public class DataBaseConnection {
 		//Get the Connection
 		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -717,13 +717,15 @@ public class DataBaseConnection {
 		try {
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
-
+			Calendar calendar = Calendar.getInstance();
+			long today = calendar.getTimeInMillis();
+			Date todaySQL = new Date(today);
 			ResultSet rs;
 
 			String bookQuery = " SELECT 'out' type, bing.call_number, bk.title, 0 amount " +
 					" FROM book bk, borrowing bing, fine f " +
 					" WHERE bing.bid = " + bIDstr + 
-					" AND bk.call_number = bing.call_number AND bing.inDate is NULL "+ 
+					" AND bk.call_number = bing.call_number AND bing.inDate < to_date('"+todaySQL+"','yyyy-mm-dd') "+ 
 					// add part that restricts listing only once if there is a
 					// fine and is borrowed
 					" UNION " +
@@ -760,7 +762,7 @@ public class DataBaseConnection {
 		}else{
 			bIDstr = globalbID;
 		}
-
+		
 		Integer paymentInt = null;
 		try { 
 			paymentInt = Integer.parseInt(paymentString); 
