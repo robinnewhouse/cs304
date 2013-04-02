@@ -54,7 +54,7 @@ public class DataBaseConnection {
 		//Get the Connection
 		//"ora_e2n7", "a36106094"
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -253,11 +253,12 @@ public class DataBaseConnection {
 		Calendar calendar = Calendar.getInstance();
 		long today = calendar.getTimeInMillis();
 		Date todaySQL = new Date(today);
+		System.out.println(todaySQL);
 		try {
 			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
-			rs = stm.executeQuery("SELECT bid, call_number FROM borrowing WHERE inDate < '" + todaySQL + "'");
+			rs = stm.executeQuery("SELECT bid, call_number FROM borrowing WHERE inDate < to_date('"+todaySQL+"','yyyy-mm-dd')");
 			Result r = new Result(rs);
 			session.loadResultPanel(r);
 		} catch (SQLException e) {
@@ -529,9 +530,9 @@ public class DataBaseConnection {
 
 						// Check to see if there is a hold request on this copy from this borrower
 						query = "SELECT * FROM hold_request WHERE call_number = '"+ callnums[i] + "' and bid = '" + bid + "'";
-						boolean b = ps.execute(query);
-						System.out.println("Did BID place a hold request on this book? " + b);
-						if (b) {
+						result = ps.executeQuery(query);
+						if (result.next()) {
+							System.out.println("Did BID placed a hold request on this book.");
 							//Delete the hold request
 							Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 							int rs4 = st4.executeUpdate("DELETE FROM hold_request WHERE call_number = '" + callnums[i] + "' and bid = '" + bid + "'");
@@ -584,63 +585,67 @@ public class DataBaseConnection {
 	 */
 	public void processReturn(String[] callnum) {
 		if (callnum.length != 2) {
-			JOptionPane.showMessageDialog(null, "Please add one callnumber and copy number at a time");
+			JOptionPane.showMessageDialog(null, "Please add the callnumber as well as the copy number at the same time");
 		}
-
-		try {
-			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			ResultSet rs = st.executeQuery("SELECT * FROM borrowing WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
-			Result r = new Result(rs);
-
-			session.loadResultPanel(r);
-			con.commit();
-
-			if (rs != null) { // if the above query returns a valid tuple
-				Statement st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-				int rs2 = st2.executeUpdate("UPDATE book_copy SET status = 'in' WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
-
-				String notifyClerk;
-				if (rs2 > 0) {
-					notifyClerk = "Processed return for book: " + callnum[0] + " copy no: " + callnum[1];
-				} else {
-					notifyClerk = "Return did not process successfully";
-				}
-
-				JOptionPane.showMessageDialog(null, notifyClerk);
-
-				// Assess fine
-				Calendar calendar = Calendar.getInstance();
-				long today = calendar.getTimeInMillis();
-				Date returnDate = new Date(today);
-
-				while (rs.next()) {
-					System.out.println("While (rs.next()) block is executed");
-					Date dueDate = rs.getDate(5);
-					System.out.println("Due date is " + dueDate + " and you returned this book on " + returnDate);
-					if (returnDate.after(dueDate)) {
-						// fine this person
-						JOptionPane.showMessageDialog(null, "You will get fined");
-					}
-				}
-				// TODO check for hold on the book
-				Statement st3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-				ResultSet rs3 = st3.executeQuery("SELECT * FROM hold_request WHERE call_number = '" + callnum[0] + "'");
-				Result r3 = new Result(rs3);
-
-				session.loadResultPanel(r3);
+		else {
+			try {
+				Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				ResultSet rs = st.executeQuery("SELECT * FROM book_copy WHERE call_number = '" + callnum[0] + "' and copy_no = '" 
+						+ callnum[1] +"' and status = 'out'");
 				con.commit();
 
-				if (rs3 != null) {
-					JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
-				}
-			}
-			// Close statement
-			st.close();	
-		} catch (SQLException e) {
-			System.out.println("Processing return failed");
-			e.printStackTrace();
-		}
+				if (rs.next()) { // if the above query returns a valid tuple
+					Statement st2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+					int rs2 = st2.executeUpdate("UPDATE book_copy SET status = 'in' WHERE call_number = '" + callnum[0] + "' and copy_no = '" + callnum[1] +"'");
 
+					String notifyClerk;
+					if (rs2 > 0) {
+						notifyClerk = "Processed return for book: " + callnum[0] + " copy no: " + callnum[1];
+					} else {
+						notifyClerk = "Return did not process successfully";
+					}
+
+					JOptionPane.showMessageDialog(null, notifyClerk);
+
+					// Assess fine
+					Calendar calendar = Calendar.getInstance();
+					long today = calendar.getTimeInMillis();
+					Date returnDate = new Date(today);
+
+					Statement st3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+					ResultSet rs3 = st3.executeQuery("select borid, inDate from (select * from borrowing where call_number = '" 
+							+ callnum[0] + "' and copy_no = '" + callnum[1] + "' order by borid desc) where rownum <= 1");
+					if (rs3.next()) {
+						Date dueDate = rs3.getDate(2);
+						if (returnDate.after(dueDate)) {
+							// fine this person
+							JOptionPane.showMessageDialog(null, "You will get fined");
+							PreparedStatement ps = con.prepareStatement("Insert into FINE values (fine_counter.nextval,20,?,null,?)");
+							ps.setDate(1, returnDate);
+							ps.setInt(2, rs3.getInt(1));
+							int rowsUpdated = ps.executeUpdate();
+							System.out.println(rowsUpdated);
+						}
+					}
+					// TODO check for hold on the book
+					Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+					ResultSet rs4 = st4.executeQuery("SELECT * FROM hold_request WHERE call_number = '" + callnum[0] + "'");
+					//Result r3 = new Result(rs3);
+
+					//session.loadResultPanel(r3);
+					con.commit();
+
+					if (rs4.next()) {
+						JOptionPane.showMessageDialog(null, "There is a hold request on this book, sending an email to the person who placed the request");
+					}
+				}
+				// Close statement
+				st.close();	
+			} catch (SQLException e) {
+				System.out.println("Processing return failed");
+				e.printStackTrace();
+			}
+		}
 	}
 
 

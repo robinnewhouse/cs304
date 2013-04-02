@@ -112,7 +112,11 @@ public class Result extends JScrollPane {
 									{
 										c.setBackground(Color.blue);
 										c.setForeground(Color.white);
-									}	
+									}
+									else {
+										c.setBackground(getBackground());
+										c.setForeground(Color.black);
+									}
 								}
 								return c;
 							}

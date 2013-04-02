@@ -248,8 +248,9 @@ public class ClerkInfo {
 
 		//Text
 		txt = new Text();
-		txt.setText("Please enter the call number of the book to return and click return.");
-		txt.setPreferredSize(new Dimension(250,50));
+		txt.setText("Please enter the call number of the book to return, followed" +
+				" by copy number and click return.");
+		txt.setPreferredSize(new Dimension(250,70));
 
 		//Set up labels with fields
 		labelReturn.setLabelFor(fieldReturn);
@@ -262,10 +263,8 @@ public class ClerkInfo {
 			public void actionPerformed(ActionEvent e) {
 				//pass card number and call number values
 				String callnum = fieldReturn.getText();
-				String[] callnums = callnum.split(" ");
-				for (int i = 0; i < callnums.length; i++) {
-					System.out.println(callnums[i]);
-				}
+				callnum = callnum.replaceAll(" ", "");
+				String[] callnums = callnum.split(",");
 				db.processReturn(callnums);
 			}
 		});
