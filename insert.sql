@@ -72,7 +72,7 @@ insert into book values (
 	'title4',
 	'mainauthor4',
 	'publisher4',
-	2004 );
+	2004 ); 
 
 insert into book_copy values (
 	'callno1','copyno1','in');

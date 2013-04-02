@@ -48,7 +48,7 @@ public class DataBaseConnection {
 
 		//Get the Connection
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -536,18 +536,25 @@ public class DataBaseConnection {
 						if(rs2 > 0)
 							JOptionPane.showMessageDialog(null, "Added " + rs2 + " rows to Borrowing table");
 
+						Integer curBorID = null;
 						if(i == 0){ // For first book
 							query = "SELECT borid_counter.currval FROM dual";
 							ps = con.prepareStatement(query);
 							result = ps.executeQuery();
 							if(result.next())
 								first = result.getInt(1);
+							curBorID = result.getInt(1);
 						}
 
 						// Update book copy status to out
-						query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'";
+						query = "UPDATE book_copy SET status = 'out' WHERE copy_no = '" + copy + "'" +
+								"AND call_number = '"+ callnums[i] +"'";
 						ps.execute(query);
 
+						// Update borrowing status to out						
+						query = "UPDATE borrowing SET status = 'out' WHERE borid =" + curBorID ;
+						ps.execute(query);
+						
 						// Check to see if there is a hold request on this copy from this borrower
 						query = "SELECT * FROM hold_request WHERE call_number = '"+ callnums[i] + "' and bid = '" + bid + "'";
 						result = ps.executeQuery(query);
@@ -636,6 +643,7 @@ public class DataBaseConnection {
 							+ callnum[0] + "' and copy_no = '" + callnum[1] + "' order by borid desc) where rownum <= 1");
 					if (rs3.next()) {
 						Date dueDate = rs3.getDate(2);
+						Integer borid = rs3.getInt("borid");
 						if (returnDate.after(dueDate)) {
 							// fine this person
 							JOptionPane.showMessageDialog(null, "You will get fined");
@@ -644,6 +652,12 @@ public class DataBaseConnection {
 							ps.setInt(2, rs3.getInt(1));
 							int rowsUpdated = ps.executeUpdate();
 						}
+						
+						// Update borrowing status to out
+						Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+						String query = "UPDATE borrowing SET status = 'in' WHERE borid = '"+ borid + "'";
+						st4.executeQuery(query);
+						
 					}
 		
 					Statement st4 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -740,9 +754,9 @@ public class DataBaseConnection {
 			ResultSet rs;
 
 			String bookQuery = " SELECT 'out' type, bing.call_number, bk.title, 0 amount " +
-					" FROM book bk, borrowing bing, fine f " +
+					" FROM book bk, borrowing bing " +
 					" WHERE bing.bid = " + bIDstr + 
-					" AND bk.call_number = bing.call_number AND bing.inDate < to_date('"+todaySQL+"','yyyy-mm-dd') "+ 
+					" AND bk.call_number = bing.call_number AND bing.status = 'out' "+ 
 					// add part that restricts listing only once if there is a
 					// fine and is borrowed
 					" UNION " +

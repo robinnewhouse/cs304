@@ -83,7 +83,8 @@ create table borrowing (
 	call_number varchar(25),
 	copy_no varchar(25),
 	outDate date,
-	inDate date );
+	inDate date ,
+	status varchar(10));
 	
 drop sequence borid_counter;
 
