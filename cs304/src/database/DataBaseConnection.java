@@ -48,7 +48,7 @@ public class DataBaseConnection {
 
 		//Get the Connection
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_e2n7", "a36106094");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug", "ora_j7p7", "a51712107");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -70,6 +70,8 @@ public class DataBaseConnection {
 		try {
 			String query = "SELECT * FROM book WHERE call_number = '" + varargs[0] + "'";
 			ps = con.prepareStatement(query);
+			con.rollback();
+			System.exit(0);
 			ResultSet result = ps.executeQuery();
 			boolean bookExists = false;
 			if(result.next())
